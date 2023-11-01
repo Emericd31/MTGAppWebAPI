@@ -1,0 +1,5 @@
+dev/Migrations
+dev/bin/
+dev/obj/
+UserData/
+*.vs
