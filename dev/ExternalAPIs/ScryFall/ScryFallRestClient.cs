@@ -12,40 +12,64 @@ using MagicAppAPI.Tools;
 
 namespace MagicAppAPI.ExternalAPIs.ScryFall
 {
+	/// <summary>Class that implements API methods with ScryFall data.</summary>
+	/// <remarks>See "https://scryfall.com/docs/api/" for further details.</remarks>
 	public sealed class ScryFallRestClient : IRestClient
 	{
-		private ScryFallRestClient() { }
+		#region Private Properties
 
-		private static ScryFallRestClient _instance;
+		/// <summary>Single instance of <see cref="ScryFallRestClient"/>.</summary>
+		private static ScryFallRestClient? _instance;
 
 		// We now have a lock object that will be used to synchronize threads
 		// during first access to the Singleton.
 		private static readonly object _lock = new object();
 
+		/// <summary>HTTP client object.</summary>
+		private HttpClient httpClient { get; set; } = new HttpClient();
+
+		#endregion Private Properties
+
+		#region Constructor 
+
+		/// <summary>Private constructor.</summary>
+		private ScryFallRestClient() { }
+
+		#endregion Constructor
+
 		#region API links
 
+		/// <summary>Base API route to get the sets.</summary>
 		private const string SET_BASE_API_ROUTE = "https://api.scryfall.com/sets/";
 
+		/// <summary>Base API route to get the cards.</summary>
 		private const string CARD_BASE_API_ROUTE = "https://api.scryfall.com/cards/";
 
 		#endregion API links
 
 		#region Private Properties
 
+		/// <summary>API route to get the cards of a specific set by knowing the set code.</summary>
 		private string CARD_SETS_API_ROUTE = CARD_BASE_API_ROUTE + "search?include_extras={0}&order=set&q=e%3A{1}{2}";
 
+		/// <summary>API route to get the card of a specific set by knowing the set code and the card code.</summary>
 		private string CARD_BY_CODE_API_ROUTE = CARD_BASE_API_ROUTE + "search?q=number%3A{0}+set%3A{1}";
 
+		/// <summary>API route to get a specific card knowing the MTG card code.</summary>
 		private string CARD_BY_MTG_CODE_API_ROUTE = CARD_BASE_API_ROUTE + "{0}/{1}";
 
+		/// <summary>API route to get a specific card knowing the unique identifier of the card.</summary>
 		private string CARD_BY_UID_API_ROUTE = CARD_BASE_API_ROUTE + "{0}";
 
+		/// <summary>API route to get the cards containing a given a character string.</summary>
 		private string CARD_BY_NAME_API_ROUTE = CARD_BASE_API_ROUTE + "search?q={0}&unique=prints";
-
-		private HttpClient httpClient { get; set; } = new HttpClient();
 
 		#endregion Private Properties
 
+		#region Public Methods
+
+		/// <summary>Gets the unique instance of ScryFall rest client (creates it if it doesn't exists).</summary>
+		/// <returns>The <see cref="ScryFallRestClient"/> object.</returns>
 		public static ScryFallRestClient GetInstance()
 		{
 			// This conditional is needed to prevent threads stumbling over the
@@ -113,7 +137,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 		/// <summary>Gets a set given a code.</summary>
 		/// <param name="setCode">Set code.</param>
 		/// <returns>Set object.</returns>
-		public Set GetSetByCode(string setCode)
+		public Set? GetSetByCode(string setCode)
 		{
 			try
 			{
@@ -125,7 +149,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 					return ScryFallDataConverters.SetConverter(unknownObject.RootElement);
 				}
 			}
-			catch (Exception ex)
+			catch
 			{
 				return null;
 			}
@@ -142,7 +166,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 		/// <returns>Tuple representing the number of cards in the set and the list of cards in the set.</returns>
 		public (long numberOfCards, List<Card> cards) GetCardsBySetCode(string setCode, bool includeExtras, bool includeVariations)
 		{
-			return Task.Run(async () =>
+			return Task.Run(() =>
 			{
 				var cards = new List<Card>();
 				long totalCards = 0;
@@ -151,7 +175,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 				bool hasMore = true;
 				while (hasMore)
 				{
-					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = await GetCardsByURL(url).ConfigureAwait(false);
+					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = GetCardsByURL(url);
 					hasMore = list.hasMoreResult;
 					url = list.urlResult;
 					totalCards = list.totalCards;
@@ -168,7 +192,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 		/// <returns>List of cards.</returns>
 		public (long numberOfCards, List<Card> cards) GetCardsByCode(string code, string setCode)
 		{
-			return Task.Run(async () =>
+			return Task.Run(() =>
 			{
 				var cards = new List<Card>();
 				long totalCards = 0;
@@ -177,7 +201,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 				bool hasMore = true;
 				while (hasMore)
 				{
-					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = await GetCardsByURL(url).ConfigureAwait(false);
+					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = GetCardsByURL(url);
 					hasMore = list.hasMoreResult;
 					url = list.urlResult;
 					totalCards = list.totalCards;
@@ -194,7 +218,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 		/// <returns>List of cards.</returns>
 		public (long numberOfCards, List<Card> cards) GetCardsByMTGCode(string mtgCode, string setCode)
 		{
-			return Task.Run(async () =>
+			return Task.Run(() =>
 			{
 				var cards = new List<Card>();
 				long totalCards = 0;
@@ -203,7 +227,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 				bool hasMore = true;
 				while (hasMore)
 				{
-					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = await GetCardsByURL(url, hasDataNode: false).ConfigureAwait(false);
+					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = GetCardsByURL(url, hasDataNode: false);
 					hasMore = list.hasMoreResult;
 					url = list.urlResult;
 					totalCards = list.totalCards;
@@ -219,7 +243,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 		/// <returns>List of cards.</returns>
 		public (long numberOfCards, List<Card> cards) GetCardsByUID(string cardUID)
 		{
-			return Task.Run(async () =>
+			return Task.Run(() =>
 			{
 				var cards = new List<Card>();
 
@@ -227,7 +251,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 				bool hasMore = true;
 				while (hasMore)
 				{
-					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = await GetCardsByURL(url, hasDataNode: false).ConfigureAwait(false);
+					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = GetCardsByURL(url, hasDataNode: false);
 					hasMore = list.hasMoreResult;
 					url = list.urlResult;
 					cards.AddRange(list.cards);
@@ -243,7 +267,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 		/// <returns>List of cards.</returns>
 		public (long numberOfCards, List<Card> cards) GetCardsByName(IRestClient client, string name, int limit = -1)
 		{
-			return Task.Run(async () =>
+			return Task.Run(() =>
 			{
 				var cards = new List<Card>();
 				long totalCards = 0;
@@ -252,7 +276,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 				bool hasMore = true;
 				while (hasMore)
 				{
-					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = await GetCardsByURL(url, limit: limit).ConfigureAwait(false);
+					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = GetCardsByURL(url, limit: limit);
 					hasMore = list.hasMoreResult;
 					url = list.urlResult;
 					totalCards = list.totalCards;
@@ -273,9 +297,9 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 		///		- The list of cards in this part of the request.
 		///		- Total number of cards in the set.
 		/// </returns>
-		private async Task<(bool hasMoreResult, string urlResult, List<Card>, long totalCards)> GetCardsByURL(string url, int limit = -1, bool hasDataNode = true)
+		private (bool hasMoreResult, string urlResult, List<Card>, long totalCards) GetCardsByURL(string url, int limit = -1, bool hasDataNode = true)
 		{
-			return Task.Run(async () =>
+			return Task.Run(() =>
 			{
 				var cardsResult = new List<Card>();
 
@@ -357,5 +381,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 		}
 
 		#endregion Cards
+
+		#endregion Public Methods
 	}
 }

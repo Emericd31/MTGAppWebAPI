@@ -10,6 +10,7 @@ using MagicAppAPI.Models;
 
 namespace MagicAppAPI.ExternalAPIs
 {
+	/// <summary>Magic rest client interface.</summary>
 	public interface IRestClient
 	{
 		/// <summary>Gets all available sets.</summary>
@@ -19,7 +20,7 @@ namespace MagicAppAPI.ExternalAPIs
 		/// <summary>Gets a set given a code.</summary>
 		/// <param name="setCode">Set code.</param>
 		/// <returns>Set object.</returns>
-		public Set GetSetByCode(string setCode);
+		public Set? GetSetByCode(string setCode);
 
 		/// <summary>Gets cards given a set code and options.</summary>
 		/// <param name="setCode">Set code.</param>

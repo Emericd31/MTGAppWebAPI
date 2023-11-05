@@ -10,23 +10,31 @@ using System.Text.Json;
 
 namespace MagicAppAPI.Tools
 {
+	/// <summary>Class that handles methods to read JSON objects.</summary>
 	public static class JsonReader
 	{
+		#region Public Methods
+
+		/// <summary>Tries to get a string from a JSON element.</summary>
+		/// <param name="jsonElement">JSON element.</param>
+		/// <returns>The string result.</returns>
+		/// <remarks>Return empty string if error.</remarks>
 		public static string TryGetStringFromJsonElement(JsonElement? jsonElement)
 		{
 			try
 			{
-				if (jsonElement == null)
-					return "";
-
-				return jsonElement.ToString();
+				return jsonElement?.ToString() ?? string.Empty;
 			}
 			catch
 			{
-				return "";
+				return string.Empty;
 			}
 		}
 
+		/// <summary>Tries to get a boolean from a JSON element.</summary>
+		/// <param name="jsonElement">JSON element.</param>
+		/// <returns>The boolean result.</returns>
+		/// <remarks>Return false if error.</remarks>
 		public static bool TryGetBoolFromJsonElement(JsonElement? jsonElement)
 		{
 			try
@@ -44,6 +52,10 @@ namespace MagicAppAPI.Tools
 			}
 		}
 
+		/// <summary>Tries to get a long from a JSON element.</summary>
+		/// <param name="jsonElement">JSON element.</param>
+		/// <returns>The long result.</returns>
+		/// <remarks>Return 0 if error.</remarks>
 		public static long TryGetLongFromJsonElement(JsonElement? jsonElement)
 		{
 			try
@@ -60,5 +72,7 @@ namespace MagicAppAPI.Tools
 				return 0;
 			}
 		}
+
+		#endregion Public Methods
 	}
 }

@@ -14,14 +14,17 @@ using MagicAppAPI.Models;
 
 namespace MagicAppAPI.GraphQL.Queries
 {
+	/// <summary>Class that manages the retrieval of set data.</summary>
 	[ExtendObjectType("Query")]
 	public class SetQuery
 	{
+		#region Public Methods
+
 		[Authorize]
 		/// <summary>Gets all available sets.</summary>
 		/// <param name="_">Parameter not used.</param>
 		/// <returns>List of available sets.</returns>
-		public async Task<List<Set>> GetSets([Service] MagicAppContext _)
+		public List<Set> GetSets([Service] MagicAppContext _)
 		{
 			var setList = new List<Set>();
 
@@ -39,9 +42,9 @@ namespace MagicAppAPI.GraphQL.Queries
 		/// <param name="_">Parameter not used.</param>
 		/// <returns>Set object.</returns>
 		/// <exception cref="Exception">Not found exception.</exception>
-		public async Task<Set> GetSetByCode(string setCode, [Service] MagicAppContext _)
+		public Set GetSetByCode(string setCode, [Service] MagicAppContext _)
 		{
-			Set set = null;
+			Set? set = null;
 
 			using (BllSet bll = new BllSet())
 			{
@@ -53,5 +56,7 @@ namespace MagicAppAPI.GraphQL.Queries
 			else
 				throw new Exception($"Cannot find set with code {setCode}");
 		}
+
+		#endregion Public Methods
 	}
 }

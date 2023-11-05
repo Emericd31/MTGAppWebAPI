@@ -8,7 +8,8 @@
 
 namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 {
-	public class CardResult
+	/// <summary>Result of an action performed on a card (ADD, REMOVE).</summary>
+	public class CardActionResult
 	{
 		#region Public Properties
 
@@ -29,7 +30,7 @@ namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 		/// <param name="statusCode">Status code.</param>
 		/// <param name="message">Message.</param>
 		/// <param name="cardUID">Card unique identifier.</param>
-		public CardResult(int statusCode, string message, string cardUID)
+		public CardActionResult(int statusCode, string message, string cardUID)
 		{
 			StatusCode = statusCode;
 			Message = message;
@@ -39,6 +40,7 @@ namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 		#endregion Constructor
 	}
 
+	/// <summary>Result of an action performed on a collection (ADD, REMOVE).</summary>
 	public class CollectionReturnType
 	{
 		#region Public Properties
@@ -49,8 +51,8 @@ namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 		/// <summary>Message.</summary>
 		public string Message { get; set; }
 
-		/// <summary>List of <see cref="CardResult"/> results.</summary>
-		public List<CardResult> Results { get; set; }
+		/// <summary>List of <see cref="CardActionResult"/> results.</summary>
+		public List<CardActionResult> Results { get; set; }
 
 		#endregion Public Properties
 
@@ -59,7 +61,7 @@ namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 		/// <summary>Constructor.</summary>
 		public CollectionReturnType()
 		{
-			Results = new List<CardResult>();
+			Results = new List<CardActionResult>();
 			Message = string.Empty;
 		}
 
@@ -70,7 +72,7 @@ namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 		{
 			StatusCode = statusCode;
 			Message = message;
-			Results = new List<CardResult>();
+			Results = new List<CardActionResult>();
 		}
 
 		#endregion Constructor
@@ -96,7 +98,7 @@ namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 		/// <param name="cardUID">Card unique identifier.</param>
 		public void AddResult(int statusCode, string message, string cardUID)
 		{
-			Results.Add(new CardResult(statusCode, message, cardUID));
+			Results.Add(new CardActionResult(statusCode, message, cardUID));
 		}
 
 		#endregion Public Methods

@@ -10,18 +10,33 @@ using MagicAppAPI.Models;
 
 namespace MagicAppAPI.GraphQL.Queries.ReturnTypes
 {
+	/// <summary>Result of card queries.</summary>
 	public class CardReturnType
 	{
+		#region Public Properties
+
+		/// <summary>Number of resulting cards.</summary>
 		public long NumberOfCards { get; set; }
 
-		public List<Card> Cards { get; set; }
+		/// <summary>List of resulting cards.</summary>
+		public List<Card> Cards { get; set; } = new List<Card>();
 
+		#endregion Public Properties
+
+		#region Constructor
+
+		/// <summary>Default constructor.</summary>
+		public CardReturnType() { }
+
+		/// <summary>Constructor.</summary>
+		/// <param name="numberOfCards">Number of resulting cards.</param>
+		/// <param name="cards">List of resulting cards.</param>
 		public CardReturnType(long numberOfCards, List<Card> cards)
 		{
 			NumberOfCards = numberOfCards;
 			Cards = cards;
 		}
 
-		public CardReturnType() { }
+		#endregion Constructor
 	}
 }

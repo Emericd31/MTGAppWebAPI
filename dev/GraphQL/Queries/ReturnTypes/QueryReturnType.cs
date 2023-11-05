@@ -8,16 +8,30 @@
 
 namespace MagicAppAPI.GraphQL.Queries.ReturnTypes
 {
+	/// <summary>Result of general queries.</summary>
 	public class QueryReturnType
 	{
+		#region Public Properties
+
+		/// <summary>Status code.</summary>
 		public int StatusCode { get; set; }
 
+		/// <summary>Data.</summary>
 		public object? Data { get; set; }
 
+		#endregion Public Properties
+
+		#region Constructor
+
+		/// <summary>Constructor.</summary>
+		/// <param name="statusCode">Status code.</param>
+		/// <param name="data">Data.</param>
 		public QueryReturnType(int statusCode, object? data)
 		{
 			StatusCode = statusCode;
 			Data = data;
 		}
+
+		#endregion Constructor
 	}
 }

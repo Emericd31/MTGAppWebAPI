@@ -12,16 +12,24 @@ using MagicAppAPI.Models;
 
 namespace MagicAppAPI.GraphQL.Queries
 {
+	/// <summary>Class that manages the retrieval of user data.</summary>
 	[ExtendObjectType("Query")]
 	public class UserQuery
 	{
+		#region Public Methods
+
+		/// <summary>Gets all users.</summary>
+		/// <param name="context">Database context.</param>
+		/// <returns>The list of <see cref="User"/> objects.</returns>
 		[UseProjection]
 		[UseFiltering]
 		[UseSorting]
 		[Authorize(Roles = new[] { "manage_members" })]
-		public async Task<IQueryable<User>> GetUsers([Service] MagicAppContext context)
+		public IQueryable<User> GetUsers([Service] MagicAppContext context)
 		{
 			return context.Users;
 		}
+
+		#endregion Public Methods
 	}
 }

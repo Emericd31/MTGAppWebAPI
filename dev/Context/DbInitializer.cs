@@ -11,8 +11,13 @@ using MagicAppAPI.Tools;
 
 namespace MagicAppAPI.Context
 {
+	/// <summary>Class that handles database initialization.</summary>
 	public static class DbInitializer
 	{
+		#region Public Methods
+
+		/// <summary>Initializes default and necesary data in database.</summary>
+		/// <param name="context">Database context</param>
 		public static void Initialize(MagicAppContext context)
 		{
 			#region Rights
@@ -184,5 +189,7 @@ namespace MagicAppAPI.Context
 
 			#endregion Card Colors
 		}
+
+		#endregion Public Methods
 	}
 }

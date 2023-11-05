@@ -8,10 +8,20 @@
 
 namespace MagicAppAPI.Models
 {
+	/// <summary>Token setting object.</summary>
 	public class TokenSettings
 	{
-		public string Issuer { get; set; }
-		public string Audience { get; set; }
-		public string Key { get; set; }
+		#region Public Properties
+
+		/// <summary>Issuer.</summary>
+		public string? Issuer { get; set; }
+
+		/// <summary>Audience.</summary>
+		public string? Audience { get; set; }
+
+		/// <summary>Key.</summary>
+		public string? Key { get; set; }
+
+		#endregion Public Properties
 	}
 }

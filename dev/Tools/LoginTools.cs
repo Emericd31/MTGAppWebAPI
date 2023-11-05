@@ -13,8 +13,14 @@ using System.Text.RegularExpressions;
 
 namespace MagicAppAPI.Tools
 {
+	/// <summary>Class that handles tools for login.</summary>
 	public static class LoginTools
 	{
+		#region Public Methods
+
+		/// <summary>Generates a password of a specific length.</summary>
+		/// <param name="nbChar">Number of character in the password.</param>
+		/// <returns>The generated password.</returns>
 		public static string GeneratePassword(int nbChar)
 		{
 			var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -28,6 +34,10 @@ namespace MagicAppAPI.Tools
 			return new string(Charsarr);
 		}
 
+		/// <summary>Gets rights of specific user by knowing its identifier.</summary>
+		/// <param name="currentUser">User.</param>
+		/// <param name="context">Database context.</param>
+		/// <returns></returns>
 		public static List<Right> GetRightsByUserId(User currentUser, [Service] MagicAppContext context)
 		{
 			try
@@ -38,7 +48,8 @@ namespace MagicAppAPI.Tools
 				foreach (UserRights rr in userRights)
 				{
 					var right = context.Rights.FirstOrDefault(input => input.Id == rr.RightId);
-					rights.Add(right);
+					if (right != null)
+						rights.Add(right);
 				}
 				return rights;
 			}
@@ -48,6 +59,9 @@ namespace MagicAppAPI.Tools
 			}
 		}
 
+		/// <summary>Gets claims used to generate token from user rights.</summary>
+		/// <param name="userRights">List of user rights.</param>
+		/// <returns>List of <see cref="Claim"/> objects.</returns>
 		public static List<Claim> GetClaimsFromUserRights(List<Right> userRights)
 		{
 			List<Claim> claims = new List<Claim>();
@@ -66,5 +80,7 @@ namespace MagicAppAPI.Tools
 			string emailRegex = AppRegex.Regex["email"];
 			return Regex.IsMatch(email, emailRegex);
 		}
+
+		#endregion Public Methods
 	}
 }

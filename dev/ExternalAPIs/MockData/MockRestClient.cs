@@ -11,16 +11,31 @@ using MagicAppAPI.Models.Builders;
 
 namespace MagicAppAPI.ExternalAPIs.MockData
 {
+	/// <summary>Class that implements API methods with mocked data (for test purpose).</summary>
 	public sealed class MockRestClient : IRestClient
 	{
-		private MockRestClient() { }
+		#region Private Properties
 
-		private static MockRestClient _instance;
+		/// <summary>Single instance of <see cref="MockRestClient"/>.</summary>
+		private static MockRestClient? _instance;
 
 		// We now have a lock object that will be used to synchronize threads
 		// during first access to the Singleton.
 		private static readonly object _lock = new object();
 
+		#endregion Private Properties
+
+		#region Constructor 
+
+		/// <summary>Private constructor.</summary>
+		private MockRestClient() { }
+
+		#endregion Constructor
+
+		#region Public Methods
+
+		/// <summary>Gets the unique instance of Mock rest client (creates it if it doesn't exists).</summary>
+		/// <returns>The <see cref="MockRestClient"/> object.</returns>
 		public static MockRestClient GetInstance()
 		{
 			// This conditional is needed to prevent threads stumbling over the
@@ -138,5 +153,7 @@ namespace MagicAppAPI.ExternalAPIs.MockData
 		}
 
 		#endregion Cards
+
+		#endregion Public Methods
 	}
 }

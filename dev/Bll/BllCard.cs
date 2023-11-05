@@ -14,6 +14,7 @@ using MagicAppAPI.Models;
 
 namespace MagicAppAPI.Bll
 {
+	/// <summary>Business logic layer for card objects.</summary>
 	public class BllCard : IDisposable
 	{
 		#region Private Properties
@@ -165,7 +166,7 @@ namespace MagicAppAPI.Bll
 				return ERequestResult.CARD_NOT_FOUND;
 
 			var collectionCard = _dalCollection.GetCollectionCard(collection.Id, card.Id);
-			if (collection == null)
+			if (collectionCard == null)
 				return ERequestResult.CARD_NOT_FOUND_IN_COLLECTION;
 
 			var newFrenchNumber = collectionCard.FrenchNumber - frenchNumber;

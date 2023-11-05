@@ -10,8 +10,11 @@ using System.Security.Cryptography;
 
 namespace MagicAppAPI.Tools
 {
+	/// <summary>Class that handles tools for password.</summary>
 	public static class PasswordHashing
 	{
+		#region Constants
+
 		// The following constants may be changed without breaking existing hashes.
 		public const int SALT_BYTE_SIZE = 24;
 		public const int HASH_BYTE_SIZE = 24;
@@ -21,15 +24,17 @@ namespace MagicAppAPI.Tools
 		public const int SALT_INDEX = 1;
 		public const int PBKDF2_INDEX = 2;
 
-		/// <summary>
-		/// Creates a salted PBKDF2 hash of the password.
-		/// </summary>
+		#endregion Constants
+
+		#region Public Methods
+
+		/// <summary>Creates a salted PBKDF2 hash of the password.</summary>
 		/// <param name="password">The password to hash.</param>
 		/// <returns>The hash of the password.</returns>
 		public static string CreateHash(string password)
 		{
 			// Generate a random salt
-			RNGCryptoServiceProvider csprng = new RNGCryptoServiceProvider();
+			var csprng = RandomNumberGenerator.Create();
 			byte[] salt = new byte[SALT_BYTE_SIZE];
 			csprng.GetBytes(salt);
 
@@ -40,9 +45,7 @@ namespace MagicAppAPI.Tools
 				Convert.ToBase64String(hash);
 		}
 
-		/// <summary>
-		/// Validates a password given a hash of the correct one.
-		/// </summary>
+		/// <summary>Validates a password given a hash of the correct one.</summary>
 		/// <param name="password">The password to check.</param>
 		/// <param name="correctHash">A hash of the correct password.</param>
 		/// <returns>True if the password is correct. False otherwise.</returns>
@@ -58,6 +61,10 @@ namespace MagicAppAPI.Tools
 			byte[] testHash = PBKDF2(password, salt, iterations, hash.Length);
 			return SlowEquals(hash, testHash);
 		}
+
+		#endregion Public Methods
+
+		#region Private Methods
 
 		/// <summary>
 		/// Compares two byte arrays in length-constant time. This comparison
@@ -75,9 +82,7 @@ namespace MagicAppAPI.Tools
 			return diff == 0;
 		}
 
-		/// <summary>
-		/// Computes the PBKDF2-SHA1 hash of a password.
-		/// </summary>
+		/// <summary>Computes the PBKDF2-SHA1 hash of a password.</summary>
 		/// <param name="password">The password to hash.</param>
 		/// <param name="salt">The salt.</param>
 		/// <param name="iterations">The PBKDF2 iteration count.</param>
@@ -89,5 +94,7 @@ namespace MagicAppAPI.Tools
 			pbkdf2.IterationCount = iterations;
 			return pbkdf2.GetBytes(outputBytes);
 		}
+
+		#endregion Private Methods
 	}
 }

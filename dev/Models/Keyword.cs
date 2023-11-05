@@ -10,18 +10,28 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MagicAppAPI.Models
 {
+	/// <summary>Keyword object.</summary>
 	public class Keyword
 	{
+		#region Public Properties
+
 		[Key]
 		/// <summary>Database's identifier.</summary>
 		public int Id { get; set; }
 
 		/// <summary>Keyword value.</summary>
-		public string Value { get; set; }
+		public string Value { get; set; } = string.Empty;
 
 		/// <summary>Property used for the intermediate table.</summary>
-		public IList<CardKeywords> CardKeywords { get; set; }
+		public IList<CardKeywords> CardKeywords { get; set; } = new List<CardKeywords>();
 
+		#endregion Public Properties
+
+		#region Constructor
+
+		/// <summary>Default constructor.</summary>
 		public Keyword() { }
+
+		#endregion Constructor
 	}
 }

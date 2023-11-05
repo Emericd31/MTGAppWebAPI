@@ -228,7 +228,7 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 				}
 				return cardObject;
 			}
-			catch (Exception ex)
+			catch
 			{
 				return cardObject;
 			}

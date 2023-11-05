@@ -8,12 +8,27 @@
 
 namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 {
-    public class MutationReturnTypeWithId : MutationReturnType
+	/// <summary>Result of an action performed on a mutation.</summary>
+	public class MutationReturnTypeWithId : MutationReturnType
     {
-        public int Id { get; set; }
-        public MutationReturnTypeWithId(int statusCode, string message, int id) : base(statusCode, message)
+		#region Public Properties
+
+		/// <summary>Identifier.</summary>
+		public int Id { get; set; }
+
+		#endregion Public Properties
+
+		#region Constructor.
+
+		/// <summary>Constructor.</summary>
+		/// <param name="statusCode">Status code.</param>
+		/// <param name="message">Meessage.</param>
+		/// <param name="id">Identifier.</param>
+		public MutationReturnTypeWithId(int statusCode, string message, int id) : base(statusCode, message)
         {
             Id = id;
         }
-    }
+
+		#endregion Constructor
+	}
 }

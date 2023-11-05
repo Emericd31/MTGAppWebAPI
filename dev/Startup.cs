@@ -18,7 +18,6 @@ using MagicAppAPI.Models;
 using MagicAppAPI.GraphQL.Queries;
 using MagicAppAPI.GraphQL.Mutations;
 using MagicAppAPI.GraphQL;
-using System.Runtime;
 
 namespace MagicAppAPI
 {
@@ -31,7 +30,7 @@ namespace MagicAppAPI
 		}
 
 		public IConfiguration Configuration { get; private set; }
-		public static IConfiguration StaticConfig { get; private set; }
+		public static IConfiguration? StaticConfig { get; private set; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)

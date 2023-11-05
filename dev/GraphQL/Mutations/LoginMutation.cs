@@ -15,7 +15,7 @@ using System.Security.Claims;
 
 namespace MagicAppAPI.GraphQL.Mutations
 {
-	/// <summary>Class that handles loing.</summary>
+	/// <summary>Class that handles login.</summary>
 	[ExtendObjectType("Mutation")]
 	public class LoginMutation
 	{
@@ -26,7 +26,7 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="email">Email address.</param>
 		/// <param name="password">Password.</param>
 		/// <returns>A <see cref="LoginMutationReturnType"/> object containing result of the request.</returns>
-		public async Task<LoginMutationReturnType> Login([Service] MagicAppContext context, string email, string password)
+		public LoginMutationReturnType Login([Service] MagicAppContext context, string email, string password)
 		{
 			var currentUser = context.Users.FirstOrDefault(user => user.Email.ToLower().Equals(email.ToLower()));
 

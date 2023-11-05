@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MagicAppAPI.Context
 {
+	/// <summary>Class that handles the database context.</summary>
 	public class MagicAppContext : DbContext
 	{
 
@@ -22,6 +23,10 @@ namespace MagicAppAPI.Context
 
 		#endregion Constructor
 
+		#region Protected Methods
+
+		/// <summary>Creates the model with foreign keys.</summary>
+		/// <param name="modelBuilder">Model builder object.</param>
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<UserRights>().HasKey(sc => new { sc.UserId, sc.RightId });
@@ -30,6 +35,8 @@ namespace MagicAppAPI.Context
 			modelBuilder.Entity<CardKeywords>().HasKey(sc => new { sc.CardId, sc.KeywordId });
 			modelBuilder.Entity<CollectionCards>().HasKey(sc => new { sc.CollectionId, sc.CardId });
 		}
+
+		#endregion
 
 		#region DbSets
 

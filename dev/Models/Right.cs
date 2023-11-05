@@ -10,20 +10,24 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MagicAppAPI.Models
 {
-	/// <summary>Class that manages rights.</summary>
+	/// <summary>Right object.</summary>
 	public class Right
 	{
+		#region Public Properties
+
 		[Key]
 		/// <summary>Database's identifier.</summary>
 		public int Id { get; set; }
 
 		/// <summary>Name of the right.</summary>
-		public string Name { get; set; }
+		public string Name { get; set; } = string.Empty;
 
 		/// <summary>Domain of the right.</summary>
-		public string Domain { get; set; }
+		public string Domain { get; set; } = string.Empty;
 
 		/// <summary>Property used for the intermediate table.</summary>
-		public IList<UserRights> UserRights { get; set; }
+		public IList<UserRights> UserRights { get; set; } = new List<UserRights>();
+
+		#endregion Public Properties
 	}
 }

@@ -17,6 +17,7 @@ using System.Security.Claims;
 
 namespace MagicAppAPI.GraphQL.Mutations
 {
+	/// <summary>Class that handles collection, including all additions, modifications and deletions.</summary>
 	[ExtendObjectType("Mutation")]
 	public class CollectionMutation
 	{
@@ -37,7 +38,13 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<CollectionReturnType> AddCardsToCurrentUserCollection([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
-			int currentUserId = Int32.Parse(httpContextAccessor.HttpContext.User.FindFirstValue("userId"));
+			if (httpContextAccessor == null)
+				return new CollectionReturnType(100, "");
+
+			int currentUserId = -1;
+			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
+				currentUserId = receivedId;
+
 			var currentUser = await context.Users.FindAsync(currentUserId);
 			if (currentUser is null)
 				return new CollectionReturnType(404, "FAILURE: Current user not found.");
@@ -90,12 +97,38 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<CollectionReturnType> RemoveCardsFromCurrentUserCollection([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
-			int currentUserId = Int32.Parse(httpContextAccessor.HttpContext.User.FindFirstValue("userId"));
+			int currentUserId = -1;
+			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
+				currentUserId = receivedId;
 			var currentUser = await context.Users.FindAsync(currentUserId);
 			if (currentUser is null)
 				return new CollectionReturnType(404, "FAILURE: Current user not found.");
 
 			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == currentUserId);
+			if (collection is null)
+				return new CollectionReturnType(404, "FAILURE: Collection not found.");
+
+			return RemoveCardsFromCollection(context, collection, cardUIDs, frenchNumbers, frenchFoilNumbers, englishNumbers, englishFoilNumbers);
+		}
+
+		/// <summary>Removes multiples cards from specific user collection.</summary>
+		/// <param name="context">Database context.</param>
+		/// <param name="userId">User identifier.</param>
+		/// <param name="collectionId">Collection's identifier.</param>
+		/// <param name="cardUIDs">List of card unique identifiers.</param>
+		/// <param name="frenchNumbers">List of numbers of cards to remove in French language.</param>
+		/// <param name="frenchFoilNumbers">List of numbers of foil remove to add in French language.</param>
+		/// <param name="englishNumbers">List of numbers of cards to remove in English language.</param>
+		/// <param name="englishFoilNumbers">List of numbers of foil cards to remove in English language.</param>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		[Authorize(Roles = new[] { "manage_collection" })]
+		public async Task<CollectionReturnType> RemoveCardsFromUserCollectionByUserId([Service] MagicAppContext context, int userId, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
+		{
+			var user = await context.Users.FindAsync(userId);
+			if (user is null)
+				return new CollectionReturnType(404, "FAILURE: User not found.");
+
+			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == userId);
 			if (collection is null)
 				return new CollectionReturnType(404, "FAILURE: Collection not found.");
 
@@ -152,14 +185,14 @@ namespace MagicAppAPI.GraphQL.Mutations
 							case ERequestResult.CARD_NOT_FOUND:
 							case ERequestResult.COLLECTION_NOT_FOUND:
 								statusCode = -1;
-								results.AddResult(404, result.ToString(), cardUID);
+								results.AddResult(404, result.ToString(), cardUID ?? string.Empty);
 								nbErrors++;
 								break;
 							case ERequestResult.CARD_ADDED:
-								results.AddResult(200, result.ToString(), cardUID);
+								results.AddResult(200, result.ToString(), cardUID ?? string.Empty);
 								break;
 							default:
-								results.AddResult(0, result.ToString(), cardUID);
+								results.AddResult(0, result.ToString(), cardUID ?? string.Empty);
 								break;
 						}
 					}
@@ -216,14 +249,14 @@ namespace MagicAppAPI.GraphQL.Mutations
 							case ERequestResult.CARD_NOT_FOUND:
 							case ERequestResult.CARD_NOT_FOUND_IN_COLLECTION:
 								statusCode = -1;
-								results.AddResult(404, result.ToString(), cardUID);
+								results.AddResult(404, result.ToString(), cardUID ?? string.Empty);
 								nbErrors++;
 								break;
 							case ERequestResult.CARD_REMOVED:
-								results.AddResult(200, result.ToString(), cardUID);
+								results.AddResult(200, result.ToString(), cardUID ?? string.Empty);
 								break;
 							default:
-								results.AddResult(0, result.ToString(), cardUID);
+								results.AddResult(0, result.ToString(), cardUID ?? string.Empty);
 								break;
 						}
 					}

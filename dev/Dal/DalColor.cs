@@ -11,25 +11,53 @@ using MagicAppAPI.Models;
 
 namespace MagicAppAPI.Dal
 {
+	/// <summary>Data access layer for color/cardColor objects.</summary>
 	public class DalColor
 	{
+		#region Private Properties
+
+		/// <summary>Database context.</summary>
 		private MagicAppContext _appContext;
 
+		#endregion Private Properties
+
+		#region Constructor
+
+		/// <summary>Constructor.</summary>
+		/// <param name="appContext">Database context.</param>
 		public DalColor(MagicAppContext appContext)
 		{
 			_appContext = appContext;
 		}
 
-		public IQueryable<Color> GetAllColors()
+		#endregion Constructor 
+
+		#region Public Methods
+
+		#region Getters
+
+		/// <summary>Gets all colors.</summary>
+		/// <returns>A list of <see cref="Color"/> objects.</returns>
+		public IQueryable<Color> GetAll()
 		{
 			return _appContext.Colors;
 		}
 
-		public Color? GetColorByValue(string colorValue)
+		/// <summary>Gets a color by value.</summary>
+		/// <param name="value">Value.</param>
+		/// <returns>A <see cref="Color"/> object (null if not found).</returns>
+		public Color? GetByValue(string value)
 		{
-			return _appContext.Colors.FirstOrDefault(c => c.Value == colorValue);
+			return _appContext.Colors.FirstOrDefault(c => c.Value == value);
 		}
 
+		#endregion Getters
+
+		#region Adding
+
+		/// <summary>Adds a card color in database and saves the context.</summary>
+		/// <param name="card">Card.</param>
+		/// <param name="color">Color.</param>
 		public void AddCardColor(Card card, Color color)
 		{
 			var cardColor = new CardColors
@@ -43,15 +71,22 @@ namespace MagicAppAPI.Dal
 			_appContext.SaveChanges();
 		}
 
+		/// <summary>Adds a list of card colors in database and saves the context.</summary>
+		/// <param name="card">Card.</param>
+		/// <param name="colors">List of <see cref="Color"/>.</param>
 		public void AddCardColors(Card card, List<Color> colors)
 		{
 			foreach (var color in colors)
 			{
-				var currentColor = GetColorByValue(color.Value);
+				var currentColor = GetByValue(color.Value);
 				if (currentColor != null)
 					_appContext.CardColors.Add(new CardColors(card, color));
 			}
 			_appContext.SaveChanges();
 		}
+
+		#endregion Adding
+
+		#endregion Public Methods
 	}
 }

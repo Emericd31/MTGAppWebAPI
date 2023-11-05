@@ -10,14 +10,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MagicAppAPI.Models
 {
+	/// <summary>Collection object.</summary>
 	public class Collection
 	{
+		#region Public Properties
+
 		[Key]
 		/// <summary>Database's identifier.</summary>
 		public int Id { get; set; }
 
 		/// <summary>Name.</summary>
-		public string Name { get; set; }
+		public string Name { get; set; } = string.Empty;
 
 		/// <summary>Description.</summary>
 		public string Description { get; set; } = "";
@@ -37,10 +40,15 @@ namespace MagicAppAPI.Models
 		/// <summary>Number of cards without their dollars US prices.</summary>
 		public int USDCardNotValued { get; set; }
 
+		/// <summary>Identifier of the user owner of the collection.</summary>
 		public int UserId { get; set; }
 
-		public User User { get; set; }
+		/// <summary>User object owner of the collection.</summary>
+		public User? User { get; set; }
 
-		public IList<CollectionCards> CollectionCards { get; set; }
+		/// <summary>List of cards present in the collection.</summary>
+		public IList<CollectionCards> CollectionCards { get; set; } = new List<CollectionCards>();
+
+		#endregion Public Properties
 	}
 }

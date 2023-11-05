@@ -8,19 +8,26 @@
 
 namespace MagicAppAPI.Models
 {
+	/// <summary>Card keyword object.</summary>
 	public class CardKeywords
 	{
+		#region Public Properties
+
 		/// <summary>Card's identifier.</summary>
 		public int CardId { get; set; }
 
 		/// <summary>Card object.</summary>
-		public Card Card { get; set; }
+		public Card? Card { get; set; }
 
 		/// <summary>Keyword's identifier.</summary>
 		public int KeywordId { get; set; }
 
 		/// <summary>Keyword object.</summary>
-		public Keyword Keyword { get; set; }
+		public Keyword? Keyword { get; set; }
+
+		#endregion Public Properties
+
+		#region Constructor
 
 		/// <summary>Default constructor.</summary>
 		public CardKeywords() { }
@@ -35,5 +42,7 @@ namespace MagicAppAPI.Models
 			Keyword = keyword;
 			KeywordId = keyword.Id;
 		}
+
+		#endregion Constructor
 	}
 }

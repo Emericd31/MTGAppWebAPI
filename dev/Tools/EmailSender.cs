@@ -12,11 +12,10 @@ using Orchestre.API.Tools;
 using MimeKit;
 using MailKit.Net.Smtp;
 using MimeKit.Text;
-using MailKit.Security;
-using Microsoft.Extensions.Configuration;
 
 namespace MagicAppAPI.Tools
 {
+	/// <summary>Class that handles email sending.</summary>
 	public class EmailSender
 	{
 		#region Constants
@@ -42,6 +41,8 @@ namespace MagicAppAPI.Tools
 		private static string EMAIL_SIGNATURE = "<p>Cordialement</p><p>Le Webmaster<br />Emeric Delacroix</p>";
 
 		#endregion Constants
+
+		#region Public Methods
 
 		/// <summary>Sends an account validation email to the specific email.</summary>
 		/// <param name="email">Recipient email.</param>
@@ -85,6 +86,10 @@ namespace MagicAppAPI.Tools
 
 			SendEmails(new List<string> { email }, subject, body);
 		}
+
+		#endregion Public Methods
+
+		#region Private Methods
 
 		/// <summary>Sends an email to the specific emails.</summary>
 		/// <param name="emails">Recipient emails.</param>
@@ -132,5 +137,7 @@ namespace MagicAppAPI.Tools
 			string token = TokenGenerator.GenerateJwtToken(claims);
 			return CURRENT_WEBSITE_SECURITY + baseLink + token;
 		}
+
+		#endregion Private Methods
 	}
 }

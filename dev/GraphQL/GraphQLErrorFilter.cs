@@ -8,8 +8,14 @@
 
 namespace MagicAppAPI.GraphQL
 {
+	/// <summary>Class that handles Graphql errors.</summary>
 	public class GraphQLErrorFilter : IErrorFilter
 	{
+		#region Public Methods
+
+		/// <summary>Methods called to retrieve errors.</summary>
+		/// <param name="error">Error.</param>
+		/// <returns>An object implemeting <see cref="IError"/>.</returns>
 		public IError OnError(IError error)
 		{
 			if (error?.Exception?.Message != null)
@@ -18,7 +24,9 @@ namespace MagicAppAPI.GraphQL
 			if (error?.Message != null)
 				return error.WithMessage(error.Message);
 
-			return error.WithMessage("An error occurred");
+			return ErrorBuilder.New().SetMessage("An error occurred").Build();
 		}
+
+		#endregion Public Methods
 	}
 }

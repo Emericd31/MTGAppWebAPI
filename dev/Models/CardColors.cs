@@ -8,19 +8,26 @@
 
 namespace MagicAppAPI.Models
 {
+	/// <summary>Card color object.</summary>
 	public class CardColors
 	{
+		#region Public Properties
+
 		/// <summary>Card's identifier.</summary>
 		public int CardId { get; set; }
 
 		/// <summary>Card object.</summary>
-		public Card Card { get; set; }
+		public Card? Card { get; set; }
 
 		/// <summary>Color's identifier.</summary>
 		public int ColorId { get; set; }
 
 		/// <summary>Color object.</summary>
-		public Color Color { get; set; }
+		public Color? Color { get; set; }
+
+		#endregion Public Properties
+
+		#region Constructor
 
 		/// <summary>Default constructor.</summary>
 		public CardColors() { }
@@ -35,5 +42,7 @@ namespace MagicAppAPI.Models
 			Color = color;
 			ColorId = color.Id;
 		}
+
+		#endregion Constructor
 	}
 }

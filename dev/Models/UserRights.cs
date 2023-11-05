@@ -8,19 +8,23 @@
 
 namespace MagicAppAPI.Models
 {
-	/// <summary>Class that manages object related to the intermediate table between Users and Rights.</summary>
+	/// <summary>User right object.</summary>
 	public class UserRights
 	{
+		#region Public Properties
+
 		/// <summary>User's identifier.</summary>
 		public int UserId { get; set; }
 
 		/// <summary>User object.</summary>
-		public User User { get; set; }
+		public User? User { get; set; }
 
 		/// <summary>Right's identifier.</summary>
 		public int RightId { get; set; }
 
 		/// <summary>Right object.</summary>
-		public Right Right { get; set; }
+		public Right? Right { get; set; }
+
+		#endregion Public Properties
 	}
 }

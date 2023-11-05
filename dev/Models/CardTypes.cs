@@ -8,20 +8,26 @@
 
 namespace MagicAppAPI.Models
 {
-	/// <summary>Class that manages object related to the intermediate table between Cards and Types.</summary>
+	/// <summary>Card type object.</summary>
 	public class CardTypes
 	{
+		#region Public Properties
+
 		/// <summary>Card's identifier.</summary>
 		public int CardId { get; set; }
 
 		/// <summary>Card object.</summary>
-		public Card Card { get; set; }
+		public Card? Card { get; set; }
 
 		/// <summary>Type's identifier.</summary>
 		public int TypeId { get; set; }
 
 		/// <summary>Type object.</summary>
-		public Type Type { get; set; }
+		public Type? Type { get; set; }
+
+		#endregion Public Properties
+
+		#region Constructor
 
 		/// <summary>Default constructor.</summary>
 		public CardTypes() { }
@@ -36,5 +42,7 @@ namespace MagicAppAPI.Models
 			Type = type;
 			TypeId = type.Id;
 		}
+
+		#endregion Constructor
 	}
 }

@@ -8,12 +8,28 @@
 
 namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 {
-    public class LoginMutationReturnType : MutationReturnTypeWithId
-    {
-        public string Token { get; set; }
-        public LoginMutationReturnType(int statusCode, string message, int id, string token) : base(statusCode, message, id)
+	/// <summary>Result of an action performed on an account (LOGIN).</summary>
+	public class LoginMutationReturnType : MutationReturnTypeWithId
+	{
+		#region Public Properties
+
+		/// <summary>Token.</summary>
+		public string Token { get; set; }
+
+		#endregion Public Properties
+
+		#region Constructor
+
+		/// <summary>Constructor.</summary>
+		/// <param name="statusCode">Status code.</param>
+		/// <param name="message">Message.</param>
+		/// <param name="id">Identifier.</param>
+		/// <param name="token">Token.</param>
+		public LoginMutationReturnType(int statusCode, string message, int id, string token) : base(statusCode, message, id)
         {
             Token = token;
         }
-    }
+
+		#endregion Constructor
+	}
 }

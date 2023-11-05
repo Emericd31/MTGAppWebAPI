@@ -20,6 +20,7 @@ namespace MagicAppAPI.Enums
 		BONUS
 	}
 
+	/// <summary>Possible values of request result.</summary>
 	public enum ERequestResult
 	{
 		USER_NOT_FOUND,

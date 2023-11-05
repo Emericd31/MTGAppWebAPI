@@ -122,7 +122,7 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<MutationReturnType> VerifyUser([Service] MagicAppContext context, string token)
 		{
-			User user = TokenGenerator.GetUserFromTokenWithEmailClaim(token, context);
+			var user = TokenGenerator.GetUserFromTokenWithEmailClaim(token, context);
 
 			if (user == null)
 			{
@@ -156,7 +156,9 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<MutationReturnType> ModifyCurrentUserEmail([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, string newEmail, string password)
 		{
-			int currentUserId = Int32.Parse(httpContextAccessor.HttpContext.User.FindFirstValue("userId"));
+			int currentUserId = -1;
+			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
+				currentUserId = receivedId;
 			var currentUser = await context.Users.FindAsync(currentUserId);
 
 			if (currentUser is null)
@@ -193,7 +195,9 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize(Roles = new[] { "manage_members" })]
 		public async Task<MutationReturnType> ModifyUserEmailById([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int userId, string newEmail, string password)
 		{
-			int currentUserId = Int32.Parse(httpContextAccessor.HttpContext.User.FindFirstValue("userId"));
+			int currentUserId = -1;
+			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
+				currentUserId = receivedId;
 			var currentUser = await context.Users.FindAsync(currentUserId);
 
 			if (currentUser is null)
@@ -230,7 +234,9 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<MutationReturnType> ModifyCurrentUserPassword([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, string currentPassword, string newPassword)
 		{
-			int currentUserId = Int32.Parse(httpContextAccessor.HttpContext.User.FindFirstValue("userId"));
+			int currentUserId = -1;
+			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
+				currentUserId = receivedId;
 			var currentUser = await context.Users.FindAsync(currentUserId);
 
 			if (currentUser is null)
@@ -258,7 +264,9 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize(Roles = new[] { "manage_members" })]
 		public async Task<MutationReturnType> ModifyPasswordByUserId([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int userId, string password, string newPassword)
 		{
-			int currentUserId = Int32.Parse(httpContextAccessor.HttpContext.User.FindFirstValue("userId"));
+			int currentUserId = -1;
+			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
+				currentUserId = receivedId;
 			var currentUser = await context.Users.FindAsync(currentUserId);
 			var userToEdit = await context.Users.FindAsync(userId);
 
@@ -281,7 +289,9 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<MutationReturnType> ModifyCurrentUserInformation([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, string firstname, string lastname)
 		{
-			int currentUserId = Int32.Parse(httpContextAccessor.HttpContext.User.FindFirstValue("userId"));
+			int currentUserId = -1;
+			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
+				currentUserId = receivedId;
 			var currentUser = await context.Users.FindAsync(currentUserId);
 			if (currentUser is null)
 				return new MutationReturnType(404, String.Format("FAILURE: Unable to modify user because id:{0} does not match with any user in the dataset.", currentUserId));
@@ -325,7 +335,9 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<MutationReturnType> DeleteCurrentUser([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor)
 		{
-			int currentUserId = Int32.Parse(httpContextAccessor.HttpContext.User.FindFirstValue("userId"));
+			int currentUserId = -1;
+			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
+				currentUserId = receivedId;
 			var currentUser = await context.Users.FindAsync(currentUserId);
 
 			if (currentUser is null)

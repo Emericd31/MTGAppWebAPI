@@ -8,11 +8,17 @@
 
 namespace MagicAppAPI.Tools
 {
+	/// <summary>Class that handles all the regex used in the application.</summary>
 	public static class AppRegex
 	{
+		#region Public Properties
+
+		/// <summary>Dictionary of regex.</summary>
 		public static Dictionary<string, string> Regex = new Dictionary<string, string>
 		{
 		  {"email", "\\w+([-+.']\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*"}
 		};
+
+		#endregion Public Properties
 	}
 }

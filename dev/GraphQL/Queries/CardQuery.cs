@@ -16,9 +16,12 @@ using MagicAppAPI.Models;
 
 namespace MagicAppAPI.GraphQL.Queries
 {
+	/// <summary>Class that manages the retrieval of card data.</summary>
 	[ExtendObjectType("Query")]
 	public class CardQuery
 	{
+		#region Public Methods
+
 		[Authorize]
 		/// <summary>Gets all cards in specific set.</summary>
 		/// <param name="context">Database context.</param>
@@ -26,7 +29,7 @@ namespace MagicAppAPI.GraphQL.Queries
 		/// <param name="includeExtras">Boolean indicating if the request should include extra cards.</param>
 		/// <param name="includeVariations">Boolean indicating if the request should include variations cards.</param>
 		/// <returns>List of cards.</returns>
-		public async Task<CardReturnType> GetCardsBySetCode([Service] MagicAppContext context, string setCode, bool includeExtras = true, bool includeVariations = true)
+		public CardReturnType GetCardsBySetCode([Service] MagicAppContext context, string setCode, bool includeExtras = true, bool includeVariations = true)
 		{
 			var result = new CardReturnType(0, new List<Card>());
 
@@ -46,7 +49,7 @@ namespace MagicAppAPI.GraphQL.Queries
 		/// <param name="code">Card code.</param>
 		/// <param name="setCode">Set code.</param>
 		/// <returns>List of cards.</returns>
-		public async Task<CardReturnType> GetCardsByCode([Service] MagicAppContext context, string code, string setCode)
+		public CardReturnType GetCardsByCode([Service] MagicAppContext context, string code, string setCode)
 		{
 			var result = new CardReturnType(0, new List<Card>());
 
@@ -66,7 +69,7 @@ namespace MagicAppAPI.GraphQL.Queries
 		/// <param name="mtgCode">MTG Card code.</param>
 		/// <param name="setCode">Set code.</param>
 		/// <returns>List of cards.</returns>
-		public async Task<CardReturnType> GetCardsByMTGCode([Service] MagicAppContext context, string mtgCode, string setCode)
+		public CardReturnType GetCardsByMTGCode([Service] MagicAppContext context, string mtgCode, string setCode)
 		{
 			var result = new CardReturnType(0, new List<Card>());
 
@@ -141,7 +144,7 @@ namespace MagicAppAPI.GraphQL.Queries
 		/// <param name="name">String.</param>
 		/// <param name="limit">Limit of card in request (no limit by default, -1).</param>
 		/// <returns>List of cards.</returns>
-		public async Task<CardReturnType> GetCardsByName([Service] MagicAppContext context, string name, int limit = -1)
+		public CardReturnType GetCardsByName([Service] MagicAppContext context, string name, int limit = -1)
 		{
 			var result = new CardReturnType(0, new List<Card>());
 
@@ -154,5 +157,7 @@ namespace MagicAppAPI.GraphQL.Queries
 
 			return result;
 		}
+
+		#endregion Public Methods
 	}
 }

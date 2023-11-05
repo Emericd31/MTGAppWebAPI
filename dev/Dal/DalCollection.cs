@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MagicAppAPI.Dal
 {
-	/// <summary>Data access layer for collection.</summary>
+	/// <summary>Data access layer for collection/collectionCard objects.</summary>
 	public class DalCollection
 	{
 		#region Private Properties

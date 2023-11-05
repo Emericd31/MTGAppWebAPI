@@ -8,22 +8,35 @@
 
 namespace MagicAppAPI.Models
 {
+	/// <summary>Set object.</summary>
 	public class Set
 	{
-		public string Name { get; set; }
+		#region Public Properties
 
-		public string Code { get; set; }
+		/// <summary>Name.</summary>
+		public string Name { get; set; } = string.Empty;
 
-		public string Type { get; set; }
+		/// <summary>Code.</summary>
+		public string Code { get; set; } = string.Empty;
 
-		public string ImgURL { get; set; }
+		/// <summary>Type.</summary>
+		public string Type { get; set; } = string.Empty;
 
-		public string ReleaseDate { get; set; }
+		/// <summary>Image URL.</summary>
+		public string ImgURL { get; set; } = string.Empty;
 
+		/// <summary>Release date.</summary>
+		public string ReleaseDate { get; set; } = string.Empty;
+
+		/// <summary>Card count.</summary>
 		public long CardCount { get; set; }
 
-		public string ParentSetCode { get; set; }
+		/// <summary>Parent set code.</summary>
+		public string ParentSetCode { get; set; } = string.Empty;
 
+		/// <summary>Boolean indicating if the set is digital.</summary>
 		public bool IsDigital { get; set; }
+
+		#endregion Public Propertiess
 	}
 }
