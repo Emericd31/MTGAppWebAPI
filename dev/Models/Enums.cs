@@ -19,4 +19,18 @@ namespace MagicAppAPI.Enums
 		MYTHIC,
 		BONUS
 	}
+
+	public enum ERequestResult
+	{
+		USER_NOT_FOUND,
+		CARD_NOT_FOUND,
+		CARD_NOT_FOUND_IN_COLLECTION,
+		COLLECTION_NOT_FOUND,
+
+		INVALID_PARAMETERS,
+
+		CARD_ADDED,
+		CARD_REMOVED,
+		SUCCESS
+	}
 }

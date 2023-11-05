@@ -21,5 +21,7 @@ namespace MagicAppAPI.Models
 
 		/// <summary>Property used for the intermediate table.</summary>
 		public IList<CardKeywords> CardKeywords { get; set; }
+
+		public Keyword() { }
 	}
 }

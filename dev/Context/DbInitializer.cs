@@ -23,7 +23,8 @@ namespace MagicAppAPI.Context
 				var rights = new Right[]
 				{
 					new Right { Name = "access_app", Domain = "application" },
-					new Right { Name = "manage_members", Domain = "users" }
+					new Right { Name = "manage_members", Domain = "users" },
+					new Right { Name = "manage_collection", Domain = "collection" }
 				};
 
 				context.Rights.RemoveRange(context.Rights);
@@ -43,6 +44,9 @@ namespace MagicAppAPI.Context
 
 				var manage_members_right = context.Rights.FirstOrDefault(r => r.Name == "manage_members");
 				var manage_members_right_id = (manage_members_right != null) ? manage_members_right.Id : -1;
+
+				var manage_collection_right = context.Rights.FirstOrDefault(r => r.Name == "manage_collection");
+				var manage_collection_right_id = (manage_collection_right != null) ? manage_collection_right.Id : -1;
 
 				var users = new User[]
 				{
@@ -79,20 +83,54 @@ namespace MagicAppAPI.Context
 				var user_user_id = (user_user != null) ? user_user.Id : -1;
 
 				if (user_admin != null && user_user != null
-					&& access_app_right != null && manage_members_right != null)
+					&& access_app_right != null && manage_members_right != null
+					&& manage_collection_right != null)
 				{
 					// User rights initialization
 					var userRights = new UserRights[]
 					{
 						new UserRights { UserId = user_admin_id, User = user_admin, RightId = access_app_right_id, Right = access_app_right },
 						new UserRights { UserId = user_admin_id, User = user_admin, RightId = manage_members_right_id, Right = manage_members_right },
-						new UserRights { UserId = user_user_id, User = user_user, RightId = access_app_right_id, Right = access_app_right },
+						new UserRights { UserId = user_admin_id, User = user_admin, RightId = manage_collection_right_id, Right = manage_collection_right },
+
+						new UserRights { UserId = user_user_id, User = user_user, RightId = access_app_right_id, Right = access_app_right }
 					};
 					context.UserRights.RemoveRange(context.UserRights);
 					context.UserRights.AddRange(userRights);
 					context.SaveChanges();
-				}
 
+					// Collection Initialization
+					var collections = new Collection[]
+					{
+						new Collection
+						{
+							Name = "MyCollection",
+							Description = "All cards owned by the player",
+							NbCards = 0,
+							EURPrice = 0.0f,
+							EURCardNotValued = 0,
+							USDPrice = 0.0f,
+							USDCardNotValued = 0,
+							UserId = user_admin_id,
+							User = user_admin
+						},
+						new Collection
+						{
+							Name = "MyCollection",
+							Description = "All cards owned by the player",
+							NbCards = 0,
+							EURPrice = 0.0f,
+							EURCardNotValued = 0,
+							USDPrice = 0.0f,
+							USDCardNotValued = 0,
+							UserId = user_user_id,
+							User = user_user
+						},
+					};
+					context.Collections.RemoveRange(context.Collections);
+					context.Collections.AddRange(collections);
+					context.SaveChanges();
+				}
 			}
 
 			#endregion Users && Associated rights

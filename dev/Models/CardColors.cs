@@ -21,5 +21,19 @@ namespace MagicAppAPI.Models
 
 		/// <summary>Color object.</summary>
 		public Color Color { get; set; }
+
+		/// <summary>Default constructor.</summary>
+		public CardColors() { }
+
+		/// <summary>Constructor.</summary>
+		/// <param name="card">Card.</param>
+		/// <param name="color">Color.</param>
+		public CardColors(Card card, Color color)
+		{
+			Card = card;
+			CardId = card.Id;
+			Color = color;
+			ColorId = color.Id;
+		}
 	}
 }

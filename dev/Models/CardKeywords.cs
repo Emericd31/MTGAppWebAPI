@@ -21,5 +21,19 @@ namespace MagicAppAPI.Models
 
 		/// <summary>Keyword object.</summary>
 		public Keyword Keyword { get; set; }
+
+		/// <summary>Default constructor.</summary>
+		public CardKeywords() { }
+
+		/// <summary>Constructor.</summary>
+		/// <param name="card">Card.</param>
+		/// <param name="keyword">Keyword.</param>
+		public CardKeywords(Card card, Keyword keyword)
+		{
+			Card = card;
+			CardId = card.Id;
+			Keyword = keyword;
+			KeywordId = keyword.Id;
+		}
 	}
 }

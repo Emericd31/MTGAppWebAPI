@@ -37,6 +37,9 @@ namespace MagicAppAPI.Models
 		/// <summary>Boolean indicating if the accound is registered.</summary>
 		public bool IsRegistered { get; set; }
 
+		/// <summary>List of collections.</summary>
+		public IList<Collection> Collections { get; set; }
+
 		/// <summary>Property used for the intermediate table.</summary>
 		public IList<UserRights> UserRights { get; set; }
 	}

@@ -92,6 +92,22 @@ namespace MagicAppAPI.GraphQL.Mutations
 				Right = accessApp
 			};
 			context.UserRights.Add(userRight);
+
+			// Creates user collection
+			Collection userCollection = new Collection
+			{
+				Name = "MyCollection",
+				Description = "All cards owned by the player",
+				NbCards = 0,
+				EURPrice = 0.0f,
+				EURCardNotValued = 0,
+				USDPrice = 0.0f,
+				USDCardNotValued = 0,
+				UserId = newUser.Id,
+				User = newUser
+			};
+			context.Collections.Add(userCollection);
+
 			await context.SaveChangesAsync();
 
 			EmailSender.SendEmailVerificationMessage(email, SettingsHelper.GetEmailSignature(_configuration));
@@ -145,7 +161,7 @@ namespace MagicAppAPI.GraphQL.Mutations
 
 			if (currentUser is null)
 			{
-				return new MutationReturnType(404, "FAILURE: User not found");
+				return new MutationReturnType(404, "FAILURE: User not found.");
 			}
 			else if (!PasswordHashing.ValidatePassword(password, currentUser.Password))
 			{
@@ -181,11 +197,11 @@ namespace MagicAppAPI.GraphQL.Mutations
 			var currentUser = await context.Users.FindAsync(currentUserId);
 
 			if (currentUser is null)
-				return new MutationReturnType(404, "FAILURE: Current user not found");
+				return new MutationReturnType(404, "FAILURE: Current user not found.");
 
 			var userToEdit = await context.Users.FindAsync(userId);
 			if (userToEdit is null)
-				return new MutationReturnType(404, "FAILURE: User not found");
+				return new MutationReturnType(404, "FAILURE: User not found.");
 
 			if (!PasswordHashing.ValidatePassword(password, currentUser.Password))
 				return new MutationReturnType(403, "FAILURE: Wrong password.");
@@ -218,7 +234,7 @@ namespace MagicAppAPI.GraphQL.Mutations
 			var currentUser = await context.Users.FindAsync(currentUserId);
 
 			if (currentUser is null)
-				return new MutationReturnType(404, "FAILURE: User not found");
+				return new MutationReturnType(404, "FAILURE: User not found.");
 
 			if (!PasswordHashing.ValidatePassword(currentPassword, currentUser.Password))
 				return new MutationReturnType(403, "FAILURE: The current password is wrong.");
@@ -247,7 +263,7 @@ namespace MagicAppAPI.GraphQL.Mutations
 			var userToEdit = await context.Users.FindAsync(userId);
 
 			if (currentUser is null || userToEdit is null)
-				return new MutationReturnType(404, "FAILURE: User not found");
+				return new MutationReturnType(404, "FAILURE: User not found.");
 
 			if (!PasswordHashing.ValidatePassword(password, currentUser.Password))
 				return new MutationReturnType(403, "FAILURE: Wrong password.");
@@ -289,7 +305,7 @@ namespace MagicAppAPI.GraphQL.Mutations
 			var userToEdit = await context.Users.FindAsync(userId);
 
 			if (userToEdit is null)
-				return new MutationReturnType(404, "FAILURE: User not found");
+				return new MutationReturnType(404, "FAILURE: User not found.");
 
 			userToEdit.FirstName = firstname;
 			userToEdit.LastName = lastname;
@@ -351,7 +367,7 @@ namespace MagicAppAPI.GraphQL.Mutations
 			var user = context.Users.FirstOrDefault(u => u.Email.Equals(email));
 
 			if (user == null)
-				return new MutationReturnType(404, "FAILURE: User not found");
+				return new MutationReturnType(404, "FAILURE: User not found.");
 
 			var newPassword = LoginTools.GeneratePassword(15);
 			user.Password = PasswordHashing.CreateHash(newPassword);

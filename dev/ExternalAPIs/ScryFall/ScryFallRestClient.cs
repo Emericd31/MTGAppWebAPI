@@ -222,7 +222,6 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 			return Task.Run(async () =>
 			{
 				var cards = new List<Card>();
-				long totalCards = 0;
 
 				var url = string.Format(CARD_BY_UID_API_ROUTE, cardUID.ToLower());
 				bool hasMore = true;
@@ -231,11 +230,10 @@ namespace MagicAppAPI.ExternalAPIs.ScryFall
 					(bool hasMoreResult, string urlResult, List<Card> cards, long totalCards) list = await GetCardsByURL(url, hasDataNode: false).ConfigureAwait(false);
 					hasMore = list.hasMoreResult;
 					url = list.urlResult;
-					totalCards = list.totalCards;
 					cards.AddRange(list.cards);
 				}
 
-				return (totalCards, cards);
+				return (cards.Count, cards);
 			}).Result;
 		}
 

@@ -49,6 +49,7 @@ namespace MagicAppAPI
 			.AddMutationType(m => m.Name("Mutation"))
 			.AddType<LoginMutation>()
 			.AddType<UserMutation>()
+			.AddType<CollectionMutation>()
 			//.AddType<UploadType>()
 			.AddProjections()
 			.AddFiltering()

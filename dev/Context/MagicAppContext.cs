@@ -28,7 +28,7 @@ namespace MagicAppAPI.Context
 			modelBuilder.Entity<CardTypes>().HasKey(sc => new { sc.CardId, sc.TypeId });
 			modelBuilder.Entity<CardColors>().HasKey(sc => new { sc.CardId, sc.ColorId });
 			modelBuilder.Entity<CardKeywords>().HasKey(sc => new { sc.CardId, sc.KeywordId });
-			modelBuilder.Entity<UserCards>().HasKey(sc => new { sc.UserId, sc.CardId });
+			modelBuilder.Entity<CollectionCards>().HasKey(sc => new { sc.CollectionId, sc.CardId });
 		}
 
 		#region DbSets
@@ -63,8 +63,11 @@ namespace MagicAppAPI.Context
 		/// <summary>Intermediate table between Cards and Keywords.</summary>
 		public DbSet<CardKeywords> CardKeywords { get; set; }
 
-		/// <summary>Intermediate table between Users and Cards.</summary>
-		public DbSet<UserCards> UserCards { get; set; }
+		/// <summary>Collections of cards.</summary>
+		public DbSet<Collection> Collections { get; set; }
+
+		/// <summary>Intermediate table between Collections and Cards.</summary>
+		public DbSet<CollectionCards> CollectionCards { get; set; }
 
 		#endregion DbSets
 	}

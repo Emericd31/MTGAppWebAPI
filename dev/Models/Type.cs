@@ -21,5 +21,7 @@ namespace MagicAppAPI.Models
 
 		/// <summary>Property used for the intermediate table.</summary>
 		public IList<CardTypes> CardTypes { get; set; }
+
+		public Type() { }
 	}
 }

@@ -8,7 +8,6 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Drawing;
 using MagicAppAPI.Enums;
 
 namespace MagicAppAPI.Models
@@ -61,13 +60,16 @@ namespace MagicAppAPI.Models
 		/// <summary>Property used for the intermediate table.</summary>
 		public IList<CardKeywords> CardKeywords { get; set; }
 
-		[NotMapped]
-		public List<Type> Types { get; set; }
+		/// <summary>Property used for the intermediate table.</summary>
+		public IList<CollectionCards> CollectionCards { get; set; }
 
 		[NotMapped]
-		public List<Color> Colors { get; set; }
+		public List<Type> Types { get; set; } = new List<Type>();
 
 		[NotMapped]
-		public List<Keyword> Keywords { get; set; }
+		public List<Color> Colors { get; set; } = new List<Color>();
+
+		[NotMapped]
+		public List<Keyword> Keywords { get; set; } = new List<Keyword>();
 	}
 }

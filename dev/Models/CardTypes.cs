@@ -22,5 +22,19 @@ namespace MagicAppAPI.Models
 
 		/// <summary>Type object.</summary>
 		public Type Type { get; set; }
+
+		/// <summary>Default constructor.</summary>
+		public CardTypes() { }
+
+		/// <summary>Constructor.</summary>
+		/// <param name="card">Card.</param>
+		/// <param name="type">Type.</param>
+		public CardTypes(Card card, Type type)
+		{
+			Card = card;
+			CardId = card.Id;
+			Type = type;
+			TypeId = type.Id;
+		}
 	}
 }

@@ -6,22 +6,23 @@
  * this file. If not, please write to: delacroix.emeric@gmail.com
  */
 
+using MagicAppAPI.Context;
 using MagicAppAPI.Models;
 
-namespace MagicAppAPI.GraphQL.Queries.ReturnTypes
+namespace MagicAppAPI.Dal
 {
-	public class CardReturnType
+	public class DalCard
 	{
-		public long NumberOfCards { get; set; }
+		private MagicAppContext _appContext;
 
-		public List<Card> Cards { get; set; }
-
-		public CardReturnType(long numberOfCards, List<Card> cards)
+		public DalCard(MagicAppContext appContext)
 		{
-			NumberOfCards = numberOfCards;
-			Cards = cards;
+			_appContext = appContext;
 		}
 
-		public CardReturnType() { }
+		public Card? GetByUID(string uid)
+		{
+			return _appContext.Cards.FirstOrDefault(c => c.UID == uid);
+		}
 	}
 }

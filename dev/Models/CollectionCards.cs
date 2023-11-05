@@ -8,14 +8,14 @@
 
 namespace MagicAppAPI.Models
 {
-	/// <summary>Class that manages object related to the intermediate table between Users and Cards.</summary>
-	public class UserCards
+	/// <summary>Class that manages object related to the intermediate table between Collections and Cards.</summary>
+	public class CollectionCards
 	{
-		/// <summary>User's identifier.</summary>
-		public int UserId { get; set; }
+		/// <summary>Collection's identifier.</summary>
+		public int CollectionId { get; set; }
 
-		/// <summary>User object.</summary>
-		public User User { get; set; }
+		/// <summary>Collection object.</summary>
+		public Collection Collection { get; set; }
 
 		/// <summary>Card's identifier.</summary>
 		public int CardId { get; set; }
@@ -26,13 +26,13 @@ namespace MagicAppAPI.Models
 		/// <summary>Number of card in French language.</summary>
 		public int FrenchNumber { get; set; }
 
-		/// <summary>Number of foild card in French language.</summary>
+		/// <summary>Number of foil card in French language.</summary>
 		public int FrenchFoilNumber { get; set; }
 
 		/// <summary>Number of card in English language.</summary>
 		public int EnglishNumber { get; set; }
 
-		/// <summary>Number of foild card in English language.</summary>
+		/// <summary>Number of foil card in English language.</summary>
 		public int EnglishFoilNumber { get; set; }
 	}
 }
