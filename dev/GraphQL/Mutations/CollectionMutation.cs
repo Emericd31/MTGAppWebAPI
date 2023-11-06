@@ -13,7 +13,7 @@ using MagicAppAPI.Enums;
 using MagicAppAPI.ExternalAPIs.ScryFall;
 using MagicAppAPI.GraphQL.Mutations.ReturnTypes;
 using MagicAppAPI.Models;
-using System.Security.Claims;
+using MagicAppAPI.Tools;
 
 namespace MagicAppAPI.GraphQL.Mutations
 {
@@ -38,18 +38,11 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<CollectionReturnType> AddCardsToCurrentUserCollection([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
-			if (httpContextAccessor == null)
-				return new CollectionReturnType(100, "");
-
-			int currentUserId = -1;
-			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
-				currentUserId = receivedId;
-
-			var currentUser = await context.Users.FindAsync(currentUserId);
-			if (currentUser is null)
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
 				return new CollectionReturnType(404, "FAILURE: Current user not found.");
 
-			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == currentUserId);
+			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == result.user.Id);
 			if (collection is null)
 				return new CollectionReturnType(404, "FAILURE: Collection not found.");
 
@@ -97,14 +90,11 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<CollectionReturnType> RemoveCardsFromCurrentUserCollection([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
-			int currentUserId = -1;
-			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
-				currentUserId = receivedId;
-			var currentUser = await context.Users.FindAsync(currentUserId);
-			if (currentUser is null)
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
 				return new CollectionReturnType(404, "FAILURE: Current user not found.");
 
-			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == currentUserId);
+			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == result.user.Id);
 			if (collection is null)
 				return new CollectionReturnType(404, "FAILURE: Collection not found.");
 

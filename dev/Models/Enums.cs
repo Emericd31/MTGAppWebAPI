@@ -34,4 +34,13 @@ namespace MagicAppAPI.Enums
 		CARD_REMOVED,
 		SUCCESS
 	}
+
+	/// <summary>Possible values of HttpAccessor request result.</summary>
+	public enum EHttpAccessorResult
+	{
+		NULL_HTTP_ACCESSOR,
+		USER_NOT_FOUND,
+
+		SUCCESS
+	}
 }

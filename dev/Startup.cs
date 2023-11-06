@@ -45,6 +45,7 @@ namespace MagicAppAPI
 			.AddType<UserQuery>()
 			.AddType<SetQuery>()
 			.AddType<CardQuery>()
+			.AddType<CollectionQuery>()
 			.AddMutationType(m => m.Name("Mutation"))
 			.AddType<LoginMutation>()
 			.AddType<UserMutation>()

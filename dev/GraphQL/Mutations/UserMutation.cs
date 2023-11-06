@@ -6,9 +6,9 @@
  * this file. If not, please write to: delacroix.emeric@gmail.com
  */
 
-using System.Security.Claims;
 using HotChocolate.Authorization;
 using MagicAppAPI.Context;
+using MagicAppAPI.Enums;
 using MagicAppAPI.GraphQL.Mutations.ReturnTypes;
 using MagicAppAPI.Models;
 using MagicAppAPI.Tools;
@@ -156,20 +156,15 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<MutationReturnType> ModifyCurrentUserEmail([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, string newEmail, string password)
 		{
-			int currentUserId = -1;
-			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
-				currentUserId = receivedId;
-			var currentUser = await context.Users.FindAsync(currentUserId);
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
+				return new MutationReturnType(404, String.Format("FAILURE: Current user not found.", -1));
 
-			if (currentUser is null)
-			{
-				return new MutationReturnType(404, "FAILURE: User not found.");
-			}
-			else if (!PasswordHashing.ValidatePassword(password, currentUser.Password))
+			if (!PasswordHashing.ValidatePassword(password, result.user.Password))
 			{
 				return new MutationReturnType(403, "FAILURE: Wrong password.");
 			}
-			else if (currentUser.Email == newEmail)
+			else if (result.user.Email == newEmail)
 			{
 				return new MutationReturnType(403, "FAILURE: Unable to change email address because it's the same as the previous one.");
 			}
@@ -177,11 +172,11 @@ namespace MagicAppAPI.GraphQL.Mutations
 			if (context.Users.Any(user => user.Email.ToLower() == newEmail.ToLower()))
 				return new MutationReturnType(400, String.Format("FAILURE: The email address: {0} is already associated with an account.", newEmail));
 
-			currentUser.IsRegistered = false;
-			currentUser.Email = newEmail;
+			result.user.IsRegistered = false;
+			result.user.Email = newEmail;
 			await context.SaveChangesAsync();
 
-			EmailSender.SendEmailVerificationMessage(currentUser.Email, SettingsHelper.GetEmailSignature(_configuration));
+			EmailSender.SendEmailVerificationMessage(result.user.Email, SettingsHelper.GetEmailSignature(_configuration));
 
 			return new MutationReturnType(200, "SUCCESS: User modified.");
 		}
@@ -195,19 +190,15 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize(Roles = new[] { "manage_members" })]
 		public async Task<MutationReturnType> ModifyUserEmailById([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int userId, string newEmail, string password)
 		{
-			int currentUserId = -1;
-			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
-				currentUserId = receivedId;
-			var currentUser = await context.Users.FindAsync(currentUserId);
-
-			if (currentUser is null)
-				return new MutationReturnType(404, "FAILURE: Current user not found.");
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
+				return new MutationReturnType(404, String.Format("FAILURE: Current user not found.", -1));
 
 			var userToEdit = await context.Users.FindAsync(userId);
 			if (userToEdit is null)
 				return new MutationReturnType(404, "FAILURE: User not found.");
 
-			if (!PasswordHashing.ValidatePassword(password, currentUser.Password))
+			if (!PasswordHashing.ValidatePassword(password, result.user.Password))
 				return new MutationReturnType(403, "FAILURE: Wrong password.");
 
 			if (userToEdit.Email == newEmail)
@@ -234,21 +225,17 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<MutationReturnType> ModifyCurrentUserPassword([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, string currentPassword, string newPassword)
 		{
-			int currentUserId = -1;
-			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
-				currentUserId = receivedId;
-			var currentUser = await context.Users.FindAsync(currentUserId);
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
+				return new MutationReturnType(404, String.Format("FAILURE: Current user not found.", -1));
 
-			if (currentUser is null)
-				return new MutationReturnType(404, "FAILURE: User not found.");
-
-			if (!PasswordHashing.ValidatePassword(currentPassword, currentUser.Password))
+			if (!PasswordHashing.ValidatePassword(currentPassword, result.user.Password))
 				return new MutationReturnType(403, "FAILURE: The current password is wrong.");
 
-			if (PasswordHashing.ValidatePassword(newPassword, currentUser.Password))
+			if (PasswordHashing.ValidatePassword(newPassword, result.user.Password))
 				return new MutationReturnType(403, "FAILURE: Unable to change password because it's the same as previous password.");
 
-			currentUser.Password = PasswordHashing.CreateHash(newPassword);
+			result.user.Password = PasswordHashing.CreateHash(newPassword);
 			await context.SaveChangesAsync();
 
 			return new MutationReturnType(200, "SUCCESS: Password changed.");
@@ -264,16 +251,15 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize(Roles = new[] { "manage_members" })]
 		public async Task<MutationReturnType> ModifyPasswordByUserId([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int userId, string password, string newPassword)
 		{
-			int currentUserId = -1;
-			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
-				currentUserId = receivedId;
-			var currentUser = await context.Users.FindAsync(currentUserId);
-			var userToEdit = await context.Users.FindAsync(userId);
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
+				return new MutationReturnType(404, String.Format("FAILURE: Current user not found.", -1));
 
-			if (currentUser is null || userToEdit is null)
+			var userToEdit = await context.Users.FindAsync(userId);
+			if (userToEdit is null)
 				return new MutationReturnType(404, "FAILURE: User not found.");
 
-			if (!PasswordHashing.ValidatePassword(password, currentUser.Password))
+			if (!PasswordHashing.ValidatePassword(password, result.user.Password))
 				return new MutationReturnType(403, "FAILURE: Wrong password.");
 
 			userToEdit.Password = PasswordHashing.CreateHash(newPassword);
@@ -289,15 +275,12 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<MutationReturnType> ModifyCurrentUserInformation([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, string firstname, string lastname)
 		{
-			int currentUserId = -1;
-			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
-				currentUserId = receivedId;
-			var currentUser = await context.Users.FindAsync(currentUserId);
-			if (currentUser is null)
-				return new MutationReturnType(404, String.Format("FAILURE: Unable to modify user because id:{0} does not match with any user in the dataset.", currentUserId));
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
+				return new MutationReturnType(404, String.Format("FAILURE: User not found.", -1));
 
-			currentUser.FirstName = firstname;
-			currentUser.LastName = lastname;
+			result.user.FirstName = firstname;
+			result.user.LastName = lastname;
 			await context.SaveChangesAsync();
 
 			return new MutationReturnType(200, "SUCCESS: User modified.");
@@ -335,15 +318,11 @@ namespace MagicAppAPI.GraphQL.Mutations
 		[Authorize]
 		public async Task<MutationReturnType> DeleteCurrentUser([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor)
 		{
-			int currentUserId = -1;
-			if (int.TryParse(httpContextAccessor?.HttpContext?.User.FindFirstValue("userId"), out int receivedId))
-				currentUserId = receivedId;
-			var currentUser = await context.Users.FindAsync(currentUserId);
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
+				return new MutationReturnType(404, String.Format("FAILURE: User not found.", -1));
 
-			if (currentUser is null)
-				return new MutationReturnType(404, String.Format("FAILURE: Unable to delete user because id:{0} does not match with any user in the dataset.", currentUserId));
-
-			context.Users.Remove(currentUser);
+			context.Users.Remove(result.user);
 			await context.SaveChangesAsync();
 
 			return new MutationReturnType(200, "SUCCESS: User removed.");
