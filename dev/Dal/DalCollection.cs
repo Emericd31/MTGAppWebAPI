@@ -37,14 +37,31 @@ namespace MagicAppAPI.Dal
 
 		#region Getters
 
-		/// <summary>Get all cards present in database.</summary>
+		/// <summary>Gets the list of collection for the specific user.</summary>
+		/// <param name="userId">User identifier.</param>
+		/// <returns>The list of <see cref="Collection"/>.</returns>
+		public IQueryable<Collection> GetUserCollections(int userId)
+		{
+			return _appContext.Collections.Where(x => x.UserId == userId);
+		}
+
+		/// <summary>Gets the specific collection for user.</summary>
+		/// <param name="userId">User identifier.</param>
+		/// <param name="collectionId">Collection identifier.</param>
+		/// <returns>The <see cref="Collection"/> (null if not found).</returns>
+		public Collection? GetUserCollectionById(int userId, int collectionId)
+		{
+			return _appContext.Collections.FirstOrDefault(x => x.UserId == userId && x.Id == collectionId);
+		}
+
+		/// <summary>Gets all cards present in database.</summary>
 		/// <returns>The list of <see cref="Card"/>.</returns>
 		public IQueryable<Card> GetAllCards()
 		{
 			return _appContext.Cards;
 		}
 
-		/// <summary>Get a card by knowing its unique identifier.</summary>
+		/// <summary>Gets a card by knowing its unique identifier.</summary>
 		/// <param name="cardUID">Card unique identifier.</param>
 		/// <returns>The <see cref="Card"/> (null if not found).</returns>
 		public Card? GetByUID(string cardUID)
@@ -52,7 +69,7 @@ namespace MagicAppAPI.Dal
 			return GetAllCards().FirstOrDefault(card => card.UID == cardUID);
 		}
 
-		/// <summary>Get the collection cards object by knowing a collection identifier and a card identifier.</summary>
+		/// <summary>Gets the collection cards object by knowing a collection identifier and a card identifier.</summary>
 		/// <param name="collectionId">Database identifier for collection.</param>
 		/// <param name="cardId">Database identifier for card.</param>
 		/// <returns>The <see cref="CollectionCards"/> (null if not found).</returns>
@@ -64,6 +81,14 @@ namespace MagicAppAPI.Dal
 		#endregion Getters
 
 		#region Adding
+
+		/// <summary>Adds a collection in database and saves the context.</summary>
+		/// <param name="collection">Collection to add</param>
+		public void AddCollection(Collection collection)
+		{
+			_appContext.Collections.Add(collection);
+			_appContext.SaveChanges();
+		}
 
 		/// <summary>Adds a card in database and saves the context.</summary>
 		/// <param name="card">Card to add.</param>
@@ -102,6 +127,21 @@ namespace MagicAppAPI.Dal
 
 		#region Setters
 
+		/// <summary>Modifies the collection information.</summary>
+		/// <param name="collection">Collection.</param>
+		/// <param name="name">Name.</param>
+		/// <param name="description">Descritpion.</param>
+		public void ModifyCollection(Collection collection, string name, string description)
+		{
+			collection.Name = name;
+			collection.Description = description;
+
+			_appContext.Attach(collection);
+			_appContext.Entry(collection).Property("Name").IsModified = true;
+			_appContext.Entry(collection).Property("Description").IsModified = true;
+			_appContext.SaveChanges();
+		}
+
 		/// <summary>Modifies the number of cards in the given collection and saves the context.</summary>
 		/// <param name="collection">Collection.</param>
 		/// <param name="nbCard">Number of card in collection (-1 will just save the current number of cards in collection in database).</param>
@@ -135,6 +175,14 @@ namespace MagicAppAPI.Dal
 		#endregion Setters
 
 		#region Removing
+
+		/// <summary>Deletes a specific collection.</summary>
+		/// <param name="collection">Collection.</param>
+		public void DeleteCollection(Collection collection)
+		{
+			_appContext.Remove(collection);
+			_appContext.SaveChanges();
+		}
 
 		/// <summary>Removes a collection cards object and saves the context.</summary>
 		/// <param name="collectionCard">Collection cards object.</param>

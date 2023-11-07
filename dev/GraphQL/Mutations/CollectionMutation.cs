@@ -23,6 +23,188 @@ namespace MagicAppAPI.GraphQL.Mutations
 	{
 		#region Public Methods
 
+		#region Adding Decks
+
+		/// <summary>Adds a deck to the current user.</summary>
+		/// <param name="context">Database context.</param>
+		/// <param name="httpContextAccessor">Http context accessor.</param>
+		/// <param name="name">Deck name.</param>
+		/// <param name="description">Deck description.</param>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		[Authorize]
+		public async Task<CollectionReturnType> AddDeckToCurrentUser([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, string name, string description)
+		{
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
+				return new CollectionReturnType(404, "FAILURE: Current user not found.");
+
+			using (var bllCollection = new BllCollection(context))
+			{
+				var decks = bllCollection.GetUserCollections(result.user.Id);
+				if (decks.Any(deck => deck.Name == name))
+					return new CollectionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
+
+				bllCollection.AddCollectionToUser(result.user, name, description);
+				return new CollectionReturnType(200, $"SUCCESS: Deck {name} created.");
+			}
+		}
+
+		/// <summary>Adds a deck to the specific user.</summary>
+		/// <param name="context">Database context.</param>
+		/// <param name="userId">User identifier.</param>
+		/// <param name="name">Deck name.</param>
+		/// <param name="description">Deck description.</param>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		[Authorize(Roles = new[] { "manage_collection" })]
+		public async Task<CollectionReturnType> AddDeckToUserByUserId([Service] MagicAppContext context, int userId, string name, string description)
+		{
+			var user = await context.Users.FindAsync(userId);
+			if (user is null)
+				return new CollectionReturnType(404, "FAILURE: User not found.");
+
+			using (var bllCollection = new BllCollection(context))
+			{
+				var decks = bllCollection.GetUserCollections(user.Id);
+				if (decks.Any(deck => deck.Name == name))
+					return new CollectionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
+
+				bllCollection.AddCollectionToUser(user, name, description);
+				return new CollectionReturnType(200, $"SUCCESS: Deck {name} created.");
+			}
+		}
+
+		#endregion Adding Decks
+
+		#region Editing Decks
+
+		/// <summary>Adds a deck to the current user.</summary>
+		/// <param name="context">Database context.</param>
+		/// <param name="httpContextAccessor">Http context accessor.</param>
+		/// <param name="collectionId">Deck identifier.</param>
+		/// <param name="name">Deck name.</param>
+		/// <param name="description">Deck description.</param>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		[Authorize]
+		public async Task<CollectionReturnType> ModifyCurrentUserDeck([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, string name, string description)
+		{
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
+				return new CollectionReturnType(404, "FAILURE: Current user not found.");
+
+			using (var bllCollection = new BllCollection(context))
+			{
+				var deck = bllCollection.GetUserCollectionById(result.user.Id, collectionId);
+				if (deck == null)
+					return new CollectionReturnType(404, "FAILURE: Deck not found.");
+
+				if (deck.Name == "MyCollection")
+					return new CollectionReturnType(403, "FORBIDDEN: Unable to modify main collection.");
+
+				if (name != deck.Name)
+				{
+					var decks = bllCollection.GetUserCollections(result.user.Id);
+					if (decks.Any(deck => deck.Name == name))
+						return new CollectionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
+				}
+
+				bllCollection.ModifyCollection(deck, name, description);
+				return new CollectionReturnType(200, $"SUCCESS: Deck {name} modified.");
+			}
+		}
+
+		/// <summary>Adds a deck to the specific user.</summary>
+		/// <param name="context">Database context.</param>
+		/// <param name="userId">User identifier.</param>
+		/// <param name="collectionId">Deck identifier.</param>
+		/// <param name="name">Deck name.</param>
+		/// <param name="description">Deck description.</param>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		[Authorize(Roles = new[] { "manage_collection" })]
+		public async Task<CollectionReturnType> ModifyUserDeckByUserId([Service] MagicAppContext context, int userId, int collectionId, string name, string description)
+		{
+			var user = await context.Users.FindAsync(userId);
+			if (user is null)
+				return new CollectionReturnType(404, "FAILURE: User not found.");
+
+			using (var bllCollection = new BllCollection(context))
+			{
+				var deck = bllCollection.GetUserCollectionById(user.Id, collectionId);
+				if (deck == null)
+					return new CollectionReturnType(404, "FAILURE: Deck not found.");
+
+				if (deck.Name == "MyCollection")
+					return new CollectionReturnType(403, "FORBIDDEN: Unable to modify main collection.");
+
+				if (name != deck.Name)
+				{
+					var decks = bllCollection.GetUserCollections(user.Id);
+					if (decks.Any(deck => deck.Name == name))
+						return new CollectionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
+				}
+
+				bllCollection.ModifyCollection(deck, name, description);
+				return new CollectionReturnType(200, $"SUCCESS: Deck {name} modified.");
+			}
+		}
+
+		#endregion Editing Decks
+
+		#region Deleting Decks
+
+		/// <summary>Deletes a deck for the current user.</summary>
+		/// <param name="context">Database context.</param>
+		/// <param name="httpContextAccessor">Http context accessor.</param>
+		/// <param name="collectionId">Deck identifier.</param>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		[Authorize]
+		public async Task<CollectionReturnType> DeleteCurrentUserDeck([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId)
+		{
+			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
+				return new CollectionReturnType(404, "FAILURE: Current user not found.");
+
+			using (var bllCollection = new BllCollection(context))
+			{
+				var deck = bllCollection.GetUserCollectionById(result.user.Id, collectionId);
+				if (deck == null)
+					return new CollectionReturnType(404, "FAILURE: Deck not found.");
+
+				if (deck.Name == "MyCollection")
+					return new CollectionReturnType(403, "FORBIDDEN: Unable to delete main collection.");
+
+				bllCollection.DeleteCollection(deck);
+				return new CollectionReturnType(200, $"SUCCESS: Deck {deck.Name} deleted.");
+			}
+		}
+
+		/// <summary>Deletes a deck for the specific user.</summary>
+		/// <param name="context">Database context.</param>
+		/// <param name="userId">User identifier.</param>
+		/// <param name="collectionId">Deck identifier.</param>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		[Authorize(Roles = new[] { "manage_collection" })]
+		public async Task<CollectionReturnType> DeleteUserDeckByUserId([Service] MagicAppContext context, int userId, int collectionId)
+		{
+			var user = await context.Users.FindAsync(userId);
+			if (user is null)
+				return new CollectionReturnType(404, "FAILURE: User not found.");
+
+			using (var bllCollection = new BllCollection(context))
+			{
+				var deck = bllCollection.GetUserCollectionById(user.Id, collectionId);
+				if (deck == null)
+					return new CollectionReturnType(404, "FAILURE: Deck not found.");
+
+				if (deck.Name == "MyCollection")
+					return new CollectionReturnType(403, "FORBIDDEN: Unable to delete main collection.");
+
+				bllCollection.DeleteCollection(deck);
+				return new CollectionReturnType(200, $"SUCCESS: Deck {deck.Name} deleted.");
+			}
+		}
+
+		#endregion Deleting Decks
+
 		#region Adding Cards
 
 		/// <summary>Adds multiples cards to specific collection for current user.</summary>
