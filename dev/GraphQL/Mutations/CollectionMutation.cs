@@ -11,14 +11,14 @@ using MagicAppAPI.Bll;
 using MagicAppAPI.Context;
 using MagicAppAPI.Enums;
 using MagicAppAPI.ExternalAPIs.ScryFall;
-using MagicAppAPI.GraphQL.Mutations.ReturnTypes;
+using MagicAppAPI.GraphQL.ReturnTypes;
 using MagicAppAPI.Models;
 using MagicAppAPI.Tools;
 
 namespace MagicAppAPI.GraphQL.Mutations
 {
-	/// <summary>Class that handles collection, including all additions, modifications and deletions.</summary>
-	[ExtendObjectType("Mutation")]
+    /// <summary>Class that handles collection, including all additions, modifications and deletions.</summary>
+    [ExtendObjectType("Mutation")]
 	public class CollectionMutation
 	{
 		#region Public Methods
@@ -30,22 +30,22 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="httpContextAccessor">Http context accessor.</param>
 		/// <param name="name">Deck name.</param>
 		/// <param name="description">Deck description.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize]
-		public async Task<CollectionReturnType> AddDeckToCurrentUser([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, string name, string description)
+		public async Task<CollectionActionReturnType> AddDeckToCurrentUser([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, string name, string description)
 		{
 			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
 			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
-				return new CollectionReturnType(404, "FAILURE: Current user not found.");
+				return new CollectionActionReturnType(404, "FAILURE: Current user not found.");
 
 			using (var bllCollection = new BllCollection(context))
 			{
 				var decks = bllCollection.GetUserCollections(result.user.Id);
 				if (decks.Any(deck => deck.Name == name))
-					return new CollectionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
+					return new CollectionActionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
 
 				bllCollection.AddCollectionToUser(result.user, name, description);
-				return new CollectionReturnType(200, $"SUCCESS: Deck {name} created.");
+				return new CollectionActionReturnType(200, $"SUCCESS: Deck {name} created.");
 			}
 		}
 
@@ -54,22 +54,22 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="userId">User identifier.</param>
 		/// <param name="name">Deck name.</param>
 		/// <param name="description">Deck description.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize(Roles = new[] { "manage_collection" })]
-		public async Task<CollectionReturnType> AddDeckToUserByUserId([Service] MagicAppContext context, int userId, string name, string description)
+		public async Task<CollectionActionReturnType> AddDeckToUserByUserId([Service] MagicAppContext context, int userId, string name, string description)
 		{
 			var user = await context.Users.FindAsync(userId);
 			if (user is null)
-				return new CollectionReturnType(404, "FAILURE: User not found.");
+				return new CollectionActionReturnType(404, "FAILURE: User not found.");
 
 			using (var bllCollection = new BllCollection(context))
 			{
 				var decks = bllCollection.GetUserCollections(user.Id);
 				if (decks.Any(deck => deck.Name == name))
-					return new CollectionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
+					return new CollectionActionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
 
 				bllCollection.AddCollectionToUser(user, name, description);
-				return new CollectionReturnType(200, $"SUCCESS: Deck {name} created.");
+				return new CollectionActionReturnType(200, $"SUCCESS: Deck {name} created.");
 			}
 		}
 
@@ -83,32 +83,32 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="collectionId">Deck identifier.</param>
 		/// <param name="name">Deck name.</param>
 		/// <param name="description">Deck description.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize]
-		public async Task<CollectionReturnType> ModifyCurrentUserDeck([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, string name, string description)
+		public async Task<CollectionActionReturnType> ModifyCurrentUserDeck([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, string name, string description)
 		{
 			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
 			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
-				return new CollectionReturnType(404, "FAILURE: Current user not found.");
+				return new CollectionActionReturnType(404, "FAILURE: Current user not found.");
 
 			using (var bllCollection = new BllCollection(context))
 			{
 				var deck = bllCollection.GetUserCollectionById(result.user.Id, collectionId);
 				if (deck == null)
-					return new CollectionReturnType(404, "FAILURE: Deck not found.");
+					return new CollectionActionReturnType(404, "FAILURE: Deck not found.");
 
 				if (deck.Name == "MyCollection")
-					return new CollectionReturnType(403, "FORBIDDEN: Unable to modify main collection.");
+					return new CollectionActionReturnType(403, "FORBIDDEN: Unable to modify main collection.");
 
 				if (name != deck.Name)
 				{
 					var decks = bllCollection.GetUserCollections(result.user.Id);
 					if (decks.Any(deck => deck.Name == name))
-						return new CollectionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
+						return new CollectionActionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
 				}
 
 				bllCollection.ModifyCollection(deck, name, description);
-				return new CollectionReturnType(200, $"SUCCESS: Deck {name} modified.");
+				return new CollectionActionReturnType(200, $"SUCCESS: Deck {name} modified.");
 			}
 		}
 
@@ -118,32 +118,32 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="collectionId">Deck identifier.</param>
 		/// <param name="name">Deck name.</param>
 		/// <param name="description">Deck description.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize(Roles = new[] { "manage_collection" })]
-		public async Task<CollectionReturnType> ModifyUserDeckByUserId([Service] MagicAppContext context, int userId, int collectionId, string name, string description)
+		public async Task<CollectionActionReturnType> ModifyUserDeckByUserId([Service] MagicAppContext context, int userId, int collectionId, string name, string description)
 		{
 			var user = await context.Users.FindAsync(userId);
 			if (user is null)
-				return new CollectionReturnType(404, "FAILURE: User not found.");
+				return new CollectionActionReturnType(404, "FAILURE: User not found.");
 
 			using (var bllCollection = new BllCollection(context))
 			{
 				var deck = bllCollection.GetUserCollectionById(user.Id, collectionId);
 				if (deck == null)
-					return new CollectionReturnType(404, "FAILURE: Deck not found.");
+					return new CollectionActionReturnType(404, "FAILURE: Deck not found.");
 
 				if (deck.Name == "MyCollection")
-					return new CollectionReturnType(403, "FORBIDDEN: Unable to modify main collection.");
+					return new CollectionActionReturnType(403, "FORBIDDEN: Unable to modify main collection.");
 
 				if (name != deck.Name)
 				{
 					var decks = bllCollection.GetUserCollections(user.Id);
 					if (decks.Any(deck => deck.Name == name))
-						return new CollectionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
+						return new CollectionActionReturnType(403, "FAILURE: A deck with the same name already exists for this user.");
 				}
 
 				bllCollection.ModifyCollection(deck, name, description);
-				return new CollectionReturnType(200, $"SUCCESS: Deck {name} modified.");
+				return new CollectionActionReturnType(200, $"SUCCESS: Deck {name} modified.");
 			}
 		}
 
@@ -155,25 +155,25 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="context">Database context.</param>
 		/// <param name="httpContextAccessor">Http context accessor.</param>
 		/// <param name="collectionId">Deck identifier.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize]
-		public async Task<CollectionReturnType> DeleteCurrentUserDeck([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId)
+		public async Task<CollectionActionReturnType> DeleteCurrentUserDeck([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId)
 		{
 			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
 			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
-				return new CollectionReturnType(404, "FAILURE: Current user not found.");
+				return new CollectionActionReturnType(404, "FAILURE: Current user not found.");
 
 			using (var bllCollection = new BllCollection(context))
 			{
 				var deck = bllCollection.GetUserCollectionById(result.user.Id, collectionId);
 				if (deck == null)
-					return new CollectionReturnType(404, "FAILURE: Deck not found.");
+					return new CollectionActionReturnType(404, "FAILURE: Deck not found.");
 
 				if (deck.Name == "MyCollection")
-					return new CollectionReturnType(403, "FORBIDDEN: Unable to delete main collection.");
+					return new CollectionActionReturnType(403, "FORBIDDEN: Unable to delete main collection.");
 
 				bllCollection.DeleteCollection(deck);
-				return new CollectionReturnType(200, $"SUCCESS: Deck {deck.Name} deleted.");
+				return new CollectionActionReturnType(200, $"SUCCESS: Deck {deck.Name} deleted.");
 			}
 		}
 
@@ -181,25 +181,25 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="context">Database context.</param>
 		/// <param name="userId">User identifier.</param>
 		/// <param name="collectionId">Deck identifier.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize(Roles = new[] { "manage_collection" })]
-		public async Task<CollectionReturnType> DeleteUserDeckByUserId([Service] MagicAppContext context, int userId, int collectionId)
+		public async Task<CollectionActionReturnType> DeleteUserDeckByUserId([Service] MagicAppContext context, int userId, int collectionId)
 		{
 			var user = await context.Users.FindAsync(userId);
 			if (user is null)
-				return new CollectionReturnType(404, "FAILURE: User not found.");
+				return new CollectionActionReturnType(404, "FAILURE: User not found.");
 
 			using (var bllCollection = new BllCollection(context))
 			{
 				var deck = bllCollection.GetUserCollectionById(user.Id, collectionId);
 				if (deck == null)
-					return new CollectionReturnType(404, "FAILURE: Deck not found.");
+					return new CollectionActionReturnType(404, "FAILURE: Deck not found.");
 
 				if (deck.Name == "MyCollection")
-					return new CollectionReturnType(403, "FORBIDDEN: Unable to delete main collection.");
+					return new CollectionActionReturnType(403, "FORBIDDEN: Unable to delete main collection.");
 
 				bllCollection.DeleteCollection(deck);
-				return new CollectionReturnType(200, $"SUCCESS: Deck {deck.Name} deleted.");
+				return new CollectionActionReturnType(200, $"SUCCESS: Deck {deck.Name} deleted.");
 			}
 		}
 
@@ -216,17 +216,17 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="frenchFoilNumbers">List of numbers of foil cards to add in French language.</param>
 		/// <param name="englishNumbers">List of numbers of cards to add in English language.</param>
 		/// <param name="englishFoilNumbers">List of numbers of foil cards to add in English language.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize]
-		public async Task<CollectionReturnType> AddCardsToCurrentUserCollection([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
+		public async Task<CollectionActionReturnType> AddCardsToCurrentUserCollection([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
 			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
 			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
-				return new CollectionReturnType(404, "FAILURE: Current user not found.");
+				return new CollectionActionReturnType(404, "FAILURE: Current user not found.");
 
 			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == result.user.Id);
 			if (collection is null)
-				return new CollectionReturnType(404, "FAILURE: Collection not found.");
+				return new CollectionActionReturnType(404, "FAILURE: Collection not found.");
 
 			return AddCardsToCollection(context, collection, cardUIDs, frenchNumbers, frenchFoilNumbers, englishNumbers, englishFoilNumbers);
 		}
@@ -240,17 +240,17 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="frenchFoilNumbers">List of numbers of foil cards to add in French language.</param>
 		/// <param name="englishNumbers">List of numbers of cards to add in English language.</param>
 		/// <param name="englishFoilNumbers">List of numbers of foil cards to add in English language.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize(Roles = new[] { "manage_collection" })]
-		public async Task<CollectionReturnType> AddCardsToUserCollectionByUserId([Service] MagicAppContext context, int userId, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
+		public async Task<CollectionActionReturnType> AddCardsToUserCollectionByUserId([Service] MagicAppContext context, int userId, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
 			var user = await context.Users.FindAsync(userId);
 			if (user is null)
-				return new CollectionReturnType(404, "FAILURE: User not found.");
+				return new CollectionActionReturnType(404, "FAILURE: User not found.");
 
 			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == user.Id);
 			if (collection is null)
-				return new CollectionReturnType(404, "FAILURE: Collection not found.");
+				return new CollectionActionReturnType(404, "FAILURE: Collection not found.");
 
 			return AddCardsToCollection(context, collection, cardUIDs, frenchNumbers, frenchFoilNumbers, englishNumbers, englishFoilNumbers);
 		}
@@ -268,17 +268,17 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="frenchFoilNumbers">List of numbers of foil cards to remove in French language.</param>
 		/// <param name="englishNumbers">List of numbers of cards to remove in English language.</param>
 		/// <param name="englishFoilNumbers">List of numbers of foil cards to remove in English language.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize]
-		public async Task<CollectionReturnType> RemoveCardsFromCurrentUserCollection([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
+		public async Task<CollectionActionReturnType> RemoveCardsFromCurrentUserCollection([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
 			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
 			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
-				return new CollectionReturnType(404, "FAILURE: Current user not found.");
+				return new CollectionActionReturnType(404, "FAILURE: Current user not found.");
 
 			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == result.user.Id);
 			if (collection is null)
-				return new CollectionReturnType(404, "FAILURE: Collection not found.");
+				return new CollectionActionReturnType(404, "FAILURE: Collection not found.");
 
 			return RemoveCardsFromCollection(context, collection, cardUIDs, frenchNumbers, frenchFoilNumbers, englishNumbers, englishFoilNumbers);
 		}
@@ -292,17 +292,17 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="frenchFoilNumbers">List of numbers of foil remove to add in French language.</param>
 		/// <param name="englishNumbers">List of numbers of cards to remove in English language.</param>
 		/// <param name="englishFoilNumbers">List of numbers of foil cards to remove in English language.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
 		[Authorize(Roles = new[] { "manage_collection" })]
-		public async Task<CollectionReturnType> RemoveCardsFromUserCollectionByUserId([Service] MagicAppContext context, int userId, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
+		public async Task<CollectionActionReturnType> RemoveCardsFromUserCollectionByUserId([Service] MagicAppContext context, int userId, int collectionId, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
 			var user = await context.Users.FindAsync(userId);
 			if (user is null)
-				return new CollectionReturnType(404, "FAILURE: User not found.");
+				return new CollectionActionReturnType(404, "FAILURE: User not found.");
 
 			var collection = context.Collections.FirstOrDefault(c => c.Id == collectionId && c.UserId == userId);
 			if (collection is null)
-				return new CollectionReturnType(404, "FAILURE: Collection not found.");
+				return new CollectionActionReturnType(404, "FAILURE: Collection not found.");
 
 			return RemoveCardsFromCollection(context, collection, cardUIDs, frenchNumbers, frenchFoilNumbers, englishNumbers, englishFoilNumbers);
 		}
@@ -321,10 +321,10 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="frenchFoilNumbers">List of numbers of foil cards to add in French language.</param>
 		/// <param name="englishNumbers">List of numbers of cards to add in English language.</param>
 		/// <param name="englishFoilNumbers">List of numbers of foil cards to add in English language.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
-		private CollectionReturnType AddCardsToCollection([Service] MagicAppContext context, Collection collection, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
+		private CollectionActionReturnType AddCardsToCollection([Service] MagicAppContext context, Collection collection, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
-			CollectionReturnType results = new CollectionReturnType();
+			CollectionActionReturnType results = new CollectionActionReturnType();
 
 			int statusCode = 200;
 			ERequestResult result;
@@ -371,8 +371,8 @@ namespace MagicAppAPI.GraphQL.Mutations
 				}
 			}
 
-			results.AddStatusCode(statusCode);
-			results.AddMessage($"Cards added to collection {collection.Name} with {nbErrors} errro(s).");
+			results.ChangeStatusCode(statusCode);
+			results.ChangeMessage($"Cards added to collection {collection.Name} with {nbErrors} errro(s).");
 
 			return results;
 		}
@@ -385,10 +385,10 @@ namespace MagicAppAPI.GraphQL.Mutations
 		/// <param name="frenchFoilNumbers">List of numbers of foil cards to remove in French language.</param>
 		/// <param name="englishNumbers">List of numbers of cards to remove in English language.</param>
 		/// <param name="englishFoilNumbers">List of numbers of foil cards to remove in English language.</param>
-		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
-		private CollectionReturnType RemoveCardsFromCollection([Service] MagicAppContext context, Collection collection, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
+		/// <returns>A <see cref="CollectionActionReturnType"/> object containing result of the request.</returns>
+		private CollectionActionReturnType RemoveCardsFromCollection([Service] MagicAppContext context, Collection collection, List<string> cardUIDs, List<int> frenchNumbers, List<int> frenchFoilNumbers, List<int> englishNumbers, List<int> englishFoilNumbers)
 		{
-			CollectionReturnType results = new CollectionReturnType();
+			CollectionActionReturnType results = new CollectionActionReturnType();
 
 			int statusCode = 200;
 			ERequestResult result;
@@ -435,8 +435,8 @@ namespace MagicAppAPI.GraphQL.Mutations
 				}
 			}
 
-			results.AddStatusCode(statusCode);
-			results.AddMessage($"Cards removed from collection with {nbErrors} errro(s).");
+			results.ChangeStatusCode(statusCode);
+			results.ChangeMessage($"Cards removed from collection with {nbErrors} errro(s).");
 
 			return results;
 		}

@@ -6,10 +6,10 @@
  * this file. If not, please write to: delacroix.emeric@gmail.com
  */
 
-namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
+namespace MagicAppAPI.GraphQL.ReturnTypes
 {
 	/// <summary>Result of an action performed on an account (LOGIN).</summary>
-	public class LoginMutationReturnType : MutationReturnTypeWithId
+	public class LoginReturnType : BaseReturnTypeWithId
 	{
 		#region Public Properties
 
@@ -25,10 +25,10 @@ namespace MagicAppAPI.GraphQL.Mutations.ReturnTypes
 		/// <param name="message">Message.</param>
 		/// <param name="id">Identifier.</param>
 		/// <param name="token">Token.</param>
-		public LoginMutationReturnType(int statusCode, string message, int id, string token) : base(statusCode, message, id)
-        {
-            Token = token;
-        }
+		public LoginReturnType(int statusCode, string message, int id, string token) : base(statusCode, message, id)
+		{
+			Token = token;
+		}
 
 		#endregion Constructor
 	}

@@ -90,14 +90,6 @@ namespace MagicAppAPI.Dal
 			_appContext.SaveChanges();
 		}
 
-		/// <summary>Adds a card in database and saves the context.</summary>
-		/// <param name="card">Card to add.</param>
-		public void AddCard(Card card)
-		{
-			_appContext.Cards.Add(card);
-			_appContext.SaveChanges();
-		}
-
 		/// <summary>Adds a collection cards object in database and saves the context.</summary>
 		/// <param name="collection">Collection.</param>
 		/// <param name="card">Card.</param>
@@ -153,6 +145,19 @@ namespace MagicAppAPI.Dal
 			_appContext.Attach(collection);
 			_appContext.Entry(collection).Property("NbCards").IsModified = true;
 			_appContext.SaveChanges();
+		}
+
+		/// <summary>Modifies the price of the collection.</summary>
+		/// <param name="collection">Collection.</param>
+		/// <param name="usdPrice">New USD price.</param>
+		/// <param name="eurPrice">New EUR price.</param>
+		public void ModifyCollectionPrices(Collection collection, float usdPrice, float eurPrice)
+		{
+			if (usdPrice < 0 || eurPrice < 0)
+				return;
+
+			collection.USDPrice = usdPrice;
+			collection.EURPrice = eurPrice;
 		}
 
 		/// <summary>Modifies the number of cards in collection cards object and saves the context.</summary>

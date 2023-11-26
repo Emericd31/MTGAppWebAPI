@@ -83,7 +83,6 @@ namespace MagicAppAPI.Bll
 			return client.GetCardsByMTGCode(mtgCode, setCode);
 		}
 
-
 		/// <summary>Gets all cards given card unique identifier.</summary>
 		/// <param name="cardUID">Card unique identifier.</param>
 		/// <returns>List of cards.</returns>
@@ -99,6 +98,14 @@ namespace MagicAppAPI.Bll
 		public (long numberOfCards, List<Card> cards) GetCardsByName(IRestClient client, string name, int limit = -1)
 		{
 			return client.GetCardsByName(client, name, limit);
+		}
+
+		/// <summary>Gets a list of cards in the given collection.</summary>
+		/// <param name="collectionId">Collection identifier.</param>
+		/// <returns>Tuple representing the number of cards in the collection and the list of cards in the collection.</returns>
+		public (long numberOfCards, List<Card> cards) GetCardsByCollection(int collectionId)
+		{
+			return _dalCard.GetByCollection(collectionId);
 		}
 
 		#endregion Getters
@@ -128,7 +135,7 @@ namespace MagicAppAPI.Bll
 					return ERequestResult.CARD_NOT_FOUND;
 
 				card = res.cards.First();
-				_dalCollection.AddCard(card);
+				_dalCard.AddCard(card);
 
 				_dalColor.AddCardColors(card, card.Colors);
 				_dalType.AddCardTypes(card, card.Types);
@@ -143,6 +150,20 @@ namespace MagicAppAPI.Bll
 
 			var nbCardsInCollection = collection.NbCards + frenchNumber + frenchFoilNumber + englishNumber + englishFoilNumber;
 			_dalCollection.ModifyNbCardCollection(collection, nbCardsInCollection);
+
+			if (float.TryParse(card.USD, out var usd))
+				collection.USDPrice += usd * englishNumber;
+
+			if (float.TryParse(card.USDFoil, out var usdFoil))
+				collection.USDPrice += usdFoil * englishFoilNumber;
+
+			if (float.TryParse(card.EUR, out var eur))
+				collection.EURPrice += eur * frenchNumber;
+
+			if (float.TryParse(card.EURFoil, out var eurFoil))
+				collection.EURPrice += eurFoil * frenchFoilNumber;
+
+			_dalCollection.ModifyCollectionPrices(collection, collection.USDPrice, collection.EURPrice);
 
 			return ERequestResult.CARD_ADDED;
 		}

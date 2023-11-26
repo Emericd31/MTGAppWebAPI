@@ -9,7 +9,7 @@
 using HotChocolate.Authorization;
 using MagicAppAPI.Context;
 using MagicAppAPI.Enums;
-using MagicAppAPI.GraphQL.Queries.ReturnTypes;
+using MagicAppAPI.GraphQL.ReturnTypes;
 using MagicAppAPI.Models;
 using MagicAppAPI.Tools;
 
@@ -24,73 +24,119 @@ namespace MagicAppAPI.GraphQL.Queries
 		/// <summary>Gets all collections for current user.</summary>
 		/// <param name="context">Database context.</param>
 		/// <param name="httpContextAccessor">Http context accessor.</param>
-		/// <returns>A <see cref="CollectionQueryReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
 		[Authorize]
-		public async Task<CollectionQueryReturnType> GetMyCollections([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor)
+		public async Task<CollectionReturnType> GetMyCollections([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor)
 		{
-			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
-			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
-				return new CollectionQueryReturnType(404, "FAILURE: Current user not found.", 0, new List<Collection>());
+			var result = new CollectionReturnType();
 
-			if (result.user == null)
-				return new CollectionQueryReturnType(404, "FAILURE: An error occurred retrieving the user.", 0, new List<Collection>());
+			try
+			{
+				var extractUser = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+				if (extractUser.result != EHttpAccessorResult.SUCCESS || extractUser.user == null)
+					return new CollectionReturnType(404, "FAILURE: Current user not found.");
 
-			var collections = context.Collections.Where(collection => collection.UserId == result.user.Id).ToList();
+				var collections = context.Collections.Where(collection => collection.UserId == extractUser.user.Id).ToList();
 
-			return new CollectionQueryReturnType(200, $"SUCCESS: {collections.Count} collection(s).", collections.Count, collections);
+				result.Data.NbCollections = collections.Count;
+				result.Data.Collections = collections;
+				result.SetToSuccess();
+			}
+			catch
+			{
+				// Do nothing
+			}
+
+			return result;
 		}
 
 		/// <summary>Gets all collections for specific user.</summary>
 		/// <param name="context">Database context.</param>
 		/// <param name="userId">User identifier.</param>
-		/// <returns>A <see cref="CollectionQueryReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
 		[Authorize(Roles = new[] { "manage_collection" })]
-		public async Task<CollectionQueryReturnType> GetCollectionsByUserId([Service] MagicAppContext context, int userId)
+		public async Task<CollectionReturnType> GetCollectionsByUserId([Service] MagicAppContext context, int userId)
 		{
-			var user = await context.Users.FindAsync(userId);
-			if (user is null)
-				return new CollectionQueryReturnType(404, "FAILURE: User not found.", 0, new List<Collection>());
+			var result = new CollectionReturnType();
 
-			var collections = context.Collections.Where(collection => collection.UserId == userId).ToList();
+			try
+			{
+				var user = await context.Users.FindAsync(userId);
+				if (user is null)
+					return new CollectionReturnType(404, "FAILURE: User not found.");
 
-			return new CollectionQueryReturnType(200, $"SUCCESS: {collections.Count} collection(s).", collections.Count, collections);
+				var collections = context.Collections.Where(collection => collection.UserId == userId).ToList();
+
+				result.Data.NbCollections = collections.Count;
+				result.Data.Collections = collections;
+				result.SetToSuccess();
+			}
+			catch
+			{
+				// Do nothing
+			}
+
+			return result;
 		}
 
 		/// <summary>Gets a collection for current user by knowing the collection identifier.</summary>
 		/// <param name="context">Database context.</param>
 		/// <param name="httpContextAccessor">Http context accessor.</param>
 		/// <param name="collectionId">Collection identifier.</param>
-		/// <returns>A <see cref="CollectionQueryReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
 		[Authorize]
-		public async Task<CollectionQueryReturnType> GetCollectionForCurrentUserById([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId)
+		public async Task<CollectionReturnType> GetCollectionForCurrentUserById([Service] MagicAppContext context, [Service] IHttpContextAccessor httpContextAccessor, int collectionId)
 		{
-			var result = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
-			if (result.result != EHttpAccessorResult.SUCCESS || result.user == null)
-				return new CollectionQueryReturnType(404, "FAILURE: Current user not found.", 0, new List<Collection>());
+			var result = new CollectionReturnType();
 
-			if (result.user == null)
-				return new CollectionQueryReturnType(404, "FAILURE: An error occurred retrieving the user.", 0, new List<Collection>());
+			try
+			{
+				var extractUser = await HttpAccessorTools.GetUserByAccessor(context, httpContextAccessor).ConfigureAwait(false);
+				if (extractUser.result != EHttpAccessorResult.SUCCESS || extractUser.user == null)
+					return new CollectionReturnType(404, "FAILURE: Current user not found.");
 
-			var collections = context.Collections.Where(collection => collection.UserId == result.user.Id && collection.Id == collectionId).ToList();
+				var collections = context.Collections.Where(collection => collection.UserId == extractUser.user.Id && collection.Id == collectionId).ToList();
 
-			return new CollectionQueryReturnType(200, $"SUCCESS: {collections.Count} collection(s).", collections.Count, collections);
+				result.Data.NbCollections = collections.Count;
+				result.Data.Collections = collections;
+				result.SetToSuccess();
+			}
+			catch (Exception)
+			{
+				// Do nothing
+			}
+
+			return result;
 		}
 
 		/// <summary>Gets a collection for specific user by knowing the user identifier and the collection identifier.</summary>
 		/// <param name="context">Database context.</param>
 		/// <param name="userId">User identifier.</param>
 		/// <param name="collectionId">Collection identifier.</param>
-		/// <returns>A <see cref="CollectionQueryReturnType"/> object containing result of the request.</returns>
+		/// <returns>A <see cref="CollectionReturnType"/> object containing result of the request.</returns>
 		[Authorize(Roles = new[] { "manage_collection" })]
-		public async Task<CollectionQueryReturnType> GetCollectionForUserById([Service] MagicAppContext context, int userId, int collectionId)
+		public async Task<CollectionReturnType> GetCollectionForUserById([Service] MagicAppContext context, int userId, int collectionId)
 		{
-			var user = await context.Users.FindAsync(userId);
-			if (user is null)
-				return new CollectionQueryReturnType(404, "FAILURE: User not found.", 0, new List<Collection>());
+			var result = new CollectionReturnType();
 
-			var collections = context.Collections.Where(collection => collection.UserId == user.Id && collection.Id == collectionId).ToList();
+			try
+			{
+				var user = await context.Users.FindAsync(userId);
+				if (user is null)
+					return new CollectionReturnType(404, "FAILURE: User not found.");
 
-			return new CollectionQueryReturnType(200, $"SUCCESS: {collections.Count} collection(s).", collections.Count, collections);
+				var collections = context.Collections.Where(collection => collection.UserId == user.Id && collection.Id == collectionId).ToList();
+
+				result.Data.NbCollections = collections.Count;
+				result.Data.Collections = collections;
+				result.SetToSuccess();
+			}
+			catch
+			{
+				// Do nothing
+			}
+
+			return result;
 		}
 
 		#endregion Public Methods
